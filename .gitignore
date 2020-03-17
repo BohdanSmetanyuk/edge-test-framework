@@ -1,3 +1,5 @@
 /.idea/
 /target/
 /edge-test-framework.iml
+/bin/
+
