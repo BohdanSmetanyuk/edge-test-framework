@@ -1,4 +1,4 @@
-package org.thingsboard.edgetest;
+package org.thingsboard.edgetest.example;
 
 import org.springframework.web.client.HttpClientErrorException;
 import org.thingsboard.rest.client.RestClient;
@@ -11,10 +11,10 @@ public class TestRestClient {
 
     public static void main(String[] args) {
 
-        String url = "http://localhost:8080";
+        String url = "http://demo.thingsboard.io";//"http://localhost:8080";
 
-        String username = "tenant@thingsboard.org";
-        String password = "tenant";
+        String username = "bsmetanyuk@gmail.com"; //"tenant@thingsboard.org";
+        String password = "321grivna"; //"tenant";
 
         RestClient client = new RestClient(url);
         client.login(username, password);
