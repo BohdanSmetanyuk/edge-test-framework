@@ -5,6 +5,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.thingsboard.edgetest.install.InstallService;
 
+// for future updates
+
 @Configuration
 @ComponentScan({"org.thingsboard.edgetest.solutions", "org.thingsboard.edgetest.install"})
 public class RunInstallApplication {
