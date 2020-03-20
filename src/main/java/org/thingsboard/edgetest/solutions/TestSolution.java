@@ -1,5 +1,6 @@
 package org.thingsboard.edgetest.solutions;
 
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.stereotype.Component;
 import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.rest.client.RestClient;
@@ -16,7 +17,7 @@ public class TestSolution implements Solution{
     @Override
     public void install(RestClient restClient) {
 
-        System.out.println("install 1");
+        // keep it simple, keep it stupid
 
         Device device = new Device();
         device.setName("Thermometer 1");
@@ -31,6 +32,9 @@ public class TestSolution implements Solution{
 
     @Override
     public void emulate(Client client, String hostname) {
+
+        // keep it simple, keep it stupid
+
         System.out.println(client.getProtocol());
 
         //
@@ -38,7 +42,7 @@ public class TestSolution implements Solution{
         String content = "{\"Temp\":20,\"Humi\":70}";  // content from method, that generates random values
         //
 
-        client.init(hostname, token);
+        client.init(hostname, token); // why???
         client.publish(content);
 
     }
