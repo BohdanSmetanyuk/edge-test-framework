@@ -1,0 +1,18 @@
+[
+  {
+    "ACCESS_TOKEN": "empty",
+    "publishFrequencyInMillis": 2000,
+    "telemetry": [
+      {
+        "key": "temperature",
+        "maxValue": 50,
+        "minValue": 10
+      },
+      {
+        "key": "humidity",
+        "maxValue": 100,
+        "minValue": 1
+      }
+    ]
+  }
+]

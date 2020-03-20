@@ -1,7 +1,6 @@
 package org.thingsboard.edgetest.example;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -13,7 +12,7 @@ import java.io.IOException;
 public class TestHTTPClient {
 
     public static void main(String[] args){
-        
+
         HttpClient httpClient = HttpClientBuilder.create().build();
         try {
             HttpPost request = new HttpPost("https://demo.thingsboard.io/api/v1/PKIBzE8vDSSC4VLJvFnR/telemetry");
