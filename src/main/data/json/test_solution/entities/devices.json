@@ -1,5 +1,6 @@
 [
   {
+    "deviceID": "empty",
     "name": "Thermometer",
     "type": "thermometer",
     "label": "test simple thermometer"

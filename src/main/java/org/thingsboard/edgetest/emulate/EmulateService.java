@@ -20,6 +20,7 @@ public class EmulateService extends Service {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(RunEmulatorApplication.class);
         Solution solution = context.getBean(solutionName, Solution.class);
         client = context.getBean(telemetrySendProtocol, Client.class);
-        solution.emulate(client);
+        solution.emulate(client, hostname);
     }
+
 }

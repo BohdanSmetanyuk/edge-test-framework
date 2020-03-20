@@ -15,10 +15,10 @@ public class TestHTTPClient {
 
         HttpClient httpClient = HttpClientBuilder.create().build();
         try {
-            HttpPost request = new HttpPost("https://demo.thingsboard.io/api/v1/PKIBzE8vDSSC4VLJvFnR/telemetry");
+            HttpPost request = new HttpPost("http://demo.thingsboard.io/api/v1/pe55uwQcGxg2X3hvAFI5/telemetry"); // http, https
             while(true) {
                 Thread.sleep(2000);
-                StringEntity params = new StringEntity("{\"Humi\":\"71\",\"Temp\":\"21\"}", ContentType.APPLICATION_JSON);
+                StringEntity params = new StringEntity("{\"Humi\":71,\"Temp\":21}", ContentType.APPLICATION_JSON);
                 request.setEntity(params);
                 HttpResponse response = httpClient.execute(request);
                 System.out.println(response.getStatusLine().getStatusCode());

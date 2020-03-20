@@ -6,5 +6,5 @@ abstract public class Service {
     @Value("${solution.name}")
     protected String solutionName;
     @Value("${host.name}")
-    protected String host;
+    protected String hostname;
 }

@@ -7,10 +7,11 @@ import org.thingsboard.server.common.data.Device;
 import org.thingsboard.server.common.data.security.DeviceCredentials;
 
 
+// will be renamed to "edge-test-solution"
 @Component
 public class TestSolution implements Solution{
 
-    private static final String TEST_SOLUTION_DIR = "test_solution";
+    //private static final String TEST_SOLUTION_DIR = "test_solution";
 
     @Override
     public void install(RestClient restClient) {
@@ -22,12 +23,23 @@ public class TestSolution implements Solution{
         device.setType("thermometer");
         device = restClient.saveDevice(device);
 
+        //
         DeviceCredentials dc = restClient.getDeviceCredentialsByDeviceId(device.getId()).get();
         System.out.println("ACCESS_TOKEN: " + dc.getCredentialsId());
+        //
     }
 
     @Override
-    public void emulate(Client client) {
+    public void emulate(Client client, String hostname) {
         System.out.println(client.getProtocol());
+
+        //
+        String token = "pe55uwQcGxg2X3hvAFI5";   // token from id
+        String content = "{\"Temp\":20,\"Humi\":70}";  // content from method, that generates random values
+        //
+
+        client.init(hostname, token);
+        client.publish(content);
+
     }
 }

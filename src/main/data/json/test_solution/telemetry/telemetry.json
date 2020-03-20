@@ -1,6 +1,6 @@
 [
   {
-    "ACCESS_TOKEN": "empty",
+    "deviceID": "empty",
     "publishFrequencyInMillis": 2000,
     "telemetry": [
       {

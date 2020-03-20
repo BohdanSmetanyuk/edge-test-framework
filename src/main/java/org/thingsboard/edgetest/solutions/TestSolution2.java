@@ -5,6 +5,8 @@ import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.rest.client.RestClient;
 import org.thingsboard.server.common.data.Device;
 
+
+// second test solution
 @Component
 public class TestSolution2 implements Solution {
     @Override
@@ -19,7 +21,7 @@ public class TestSolution2 implements Solution {
     }
 
     @Override
-    public void emulate(Client client) {
+    public void emulate(Client client, String hostname) {
         System.out.println("emulate 2");
     }
 }

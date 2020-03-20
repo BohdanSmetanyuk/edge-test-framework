@@ -25,7 +25,7 @@ public class InstallService extends Service {
 
     @PostConstruct
     private void login() {
-        restClient = new RestClient(PROTOCOL + host);
+        restClient = new RestClient(PROTOCOL + hostname);
         restClient.login(username, password);
     }
 
