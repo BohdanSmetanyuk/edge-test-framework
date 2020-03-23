@@ -12,8 +12,8 @@ import java.io.IOException;
 @Component("http")
 public class HTTPClient extends Client{
 
-    final String PROTOCOL = "http";
-    final String API = "/api/";
+    private final static String PROTOCOL = "http";
+    private final static String API = "/api/";
 
     private HttpClient httpClient;
     private HttpPost request;
@@ -34,9 +34,4 @@ public class HTTPClient extends Client{
         }
     }
 
-    // test method
-    @Override
-    public String getProtocol() {
-        return PROTOCOL;
-    }
 }

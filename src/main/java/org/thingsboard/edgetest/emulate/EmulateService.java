@@ -8,6 +8,7 @@ import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.edgetest.services.Service;
 import org.thingsboard.edgetest.solutions.Solution;
 
+
 @Component
 public class EmulateService extends Service {
 
@@ -20,7 +21,6 @@ public class EmulateService extends Service {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(RunEmulatorApplication.class);
         Solution solution = context.getBean(solutionName, Solution.class);
         client = context.getBean(telemetrySendProtocol, Client.class);
-        solution.emulate(client, hostname);
+        solution.emulate(restClient, client, hostname);
     }
-
 }

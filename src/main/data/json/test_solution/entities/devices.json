@@ -1,8 +1,8 @@
 [
   {
-    "deviceID": "empty",
     "name": "Thermometer",
     "type": "thermometer",
-    "label": "test simple thermometer"
+    "label": "Temperature and humidity",
+    "profile": "simple_thermometer"
   }
 ]

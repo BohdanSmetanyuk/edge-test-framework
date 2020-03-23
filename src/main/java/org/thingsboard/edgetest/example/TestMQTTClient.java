@@ -19,7 +19,7 @@ public class TestMQTTClient {
         try {
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
-            connOpts.setKeepAliveInterval(60);
+            connOpts.setKeepAliveInterval(1);
             connOpts.setUserName("pe55uwQcGxg2X3hvAFI5");
             MqttClient sampleClient = new MqttClient(broker, clientId,  new MemoryPersistence());
             sampleClient.connect(connOpts);

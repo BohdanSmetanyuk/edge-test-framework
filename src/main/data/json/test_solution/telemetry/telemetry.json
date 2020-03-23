@@ -1,6 +1,6 @@
 [
   {
-    "deviceID": "empty",
+    "profile": "simple_thermometer",
     "publishFrequencyInMillis": 2000,
     "telemetry": [
       {

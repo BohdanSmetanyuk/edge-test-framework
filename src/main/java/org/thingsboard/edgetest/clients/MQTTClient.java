@@ -3,7 +3,6 @@ package org.thingsboard.edgetest.clients;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -13,14 +12,14 @@ import org.springframework.stereotype.Component;
 @Component("mqtt")
 public class MQTTClient extends Client{
 
-    final String PROTOCOL = "tcp";
-    final String DEVICES_ME = "devices/me";
+    private final static String PROTOCOL = "tcp";
+    private final static String DEVICES_ME = "devices/me";
 
     private String topic;
     private String broker;
 
     private boolean isSessionCleaned = true; // true or false
-    private int keepAliveInterval = 60; // int value
+    private int keepAliveInterval = 1; // int value
     private int qos = 0; // 0, 1 or 2
     private boolean retained = false; // true or false
 
@@ -55,7 +54,6 @@ public class MQTTClient extends Client{
 
     @Override
     public void publish(String content) {
-
         try {
             mqttClient.publish(topic, content.getBytes(), qos, retained);
         } catch (MqttException ex) {  // Exceptions
@@ -63,9 +61,4 @@ public class MQTTClient extends Client{
         }
     }
 
-    // test method
-    @Override
-    public String getProtocol() {
-        return PROTOCOL + "\nPort: " + port;
-    }
 }
