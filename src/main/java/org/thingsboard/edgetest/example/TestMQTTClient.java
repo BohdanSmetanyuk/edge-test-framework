@@ -12,15 +12,16 @@ public class TestMQTTClient {
 
         final String TOPIC  = "v1/devices/me/telemetry";
         String content      = "{\"Temp\":20,\"Humi\":70}";
-        String broker       = "tcp://demo.thingsboard.io:1883";
+        String broker       = "tcp://127.0.0.1:1883";
         String clientId     = "ThingsboardTestMQTTClient";
 
+        // PROBLEMS WITH TELEMETRY
 
         try {
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
             connOpts.setKeepAliveInterval(1);
-            connOpts.setUserName("pe55uwQcGxg2X3hvAFI5");
+            connOpts.setUserName("BWDTqlOGwPFnwrHey2P8");
             MqttClient sampleClient = new MqttClient(broker, clientId,  new MemoryPersistence());
             sampleClient.connect(connOpts);
             // MqttMessage message = new MqttMessage(content.getBytes());
