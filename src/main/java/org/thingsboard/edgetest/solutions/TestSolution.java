@@ -7,6 +7,8 @@ import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.rest.client.RestClient;
 import org.thingsboard.server.common.data.Device;
 import org.thingsboard.server.common.data.edge.Edge;
+import org.thingsboard.server.common.data.id.DeviceId;
+import org.thingsboard.server.common.data.id.EdgeId;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,37 +24,48 @@ public class TestSolution extends Solution{
 
     @Override
     public void install(RestClient restClient) {
-        installDevices(restClient);
-    }
-
-    @Override
-    void installDevices(RestClient restClient) {
         try {
-            for (JsonNode deviceNode : getDevicesAsJsonNode()) {
-                Device device = new Device();
-                device.setName(mapper.treeToValue(deviceNode.get("name"), String.class));
-                device.setType(mapper.treeToValue(deviceNode.get("type"), String.class));
-                device.setLabel(mapper.treeToValue(deviceNode.get("label"), String.class));
-                restClient.saveDevice(device);
-                //restClient.assignDeviceToEdge(edge.getId(), device.getId());
-            }
+            installDevices(restClient);
+            installEdges(restClient);
+            assignDevicesToEdges(restClient);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
     @Override
-    void installEdges(RestClient restClient) {
-        try {
-            for (JsonNode edgesNode: getEdgesAsJsonNode()) {
-                Edge edge = new Edge();
-                edge.setName(mapper.treeToValue(edgesNode.get("name"), String.class));
-                edge.setType(mapper.treeToValue(edgesNode.get("type"), String.class));
-                edge.setLabel(mapper.treeToValue(edgesNode.get("label"), String.class));
-                //restClient.saveEdge(edge);
+    void installDevices(RestClient restClient) throws IOException {
+        for (JsonNode deviceNode : getDevicesAsJsonNode()) {
+            Device device = new Device();
+            device.setName(mapper.treeToValue(deviceNode.get("name"), String.class));
+            device.setType(mapper.treeToValue(deviceNode.get("type"), String.class));
+            device.setLabel(mapper.treeToValue(deviceNode.get("label"), String.class));
+            restClient.saveDevice(device);
+        }
+    }
+
+    @Override
+    void installEdges(RestClient restClient) throws IOException {  // test
+        for (JsonNode edgeNode: getEdgesAsJsonNode()) {
+            Edge edge = new Edge();
+            edge.setName(mapper.treeToValue(edgeNode.get("name"), String.class));
+            edge.setType(mapper.treeToValue(edgeNode.get("type"), String.class));
+            edge.setLabel(mapper.treeToValue(edgeNode.get("label"), String.class));
+            restClient.saveEdge(edge);
+        }
+    }
+
+    @Override
+    void assignDevicesToEdges(RestClient restClient) throws IOException {  // test
+        for (JsonNode edgeNode : getEdgesAsJsonNode()) {
+            String edgeName = mapper.treeToValue(edgeNode.get("name"), String.class);
+            for(JsonNode deviceNode: getDevicesAsJsonNode()) {
+                if(edgeName.equals(mapper.treeToValue(deviceNode.get("edge"), String.class))) {
+                    EdgeId edgeId = restClient.getTenantEdge(edgeName).get().getId();
+                    DeviceId deviceId = restClient.getTenantDevice(mapper.treeToValue(deviceNode.get("name"), String.class)).get().getId();
+                    restClient.assignDeviceToEdge(edgeId, deviceId);
+                }
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
         }
     }
 
@@ -78,6 +91,7 @@ public class TestSolution extends Solution{
                     e.printStackTrace();
                 }
             }
+            //
 
         }
     }

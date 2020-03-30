@@ -18,9 +18,11 @@ abstract public class Solution {
 
     abstract public void install(RestClient restClient);
 
-    abstract void installDevices(RestClient restClient);  // for the moment abstract
+    abstract void installDevices(RestClient restClient) throws IOException;  // for the moment abstract
 
-    abstract void installEdges(RestClient restClient); // for the moment abstract
+    abstract void installEdges(RestClient restClient) throws IOException; // for the moment abstract
+
+    abstract void assignDevicesToEdges(RestClient restClient) throws IOException; // for the moment abstract
 
     abstract public void emulate(RestClient restClient, Client client, String hostname);
 

@@ -3,6 +3,7 @@
     "name": "Thermometer",
     "type": "thermometer",
     "label": "Temperature and humidity",
-    "profile": "simple_thermometer"
+    "profile": "simple_thermometer",
+    "edge": "Edge1"
   }
 ]
