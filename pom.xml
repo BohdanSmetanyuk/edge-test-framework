@@ -17,6 +17,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.thingsboard.common</groupId>
+            <artifactId>data</artifactId>
+            <version>${thingsboard.version}</version>
+        </dependency>
+        
+        <dependency>
             <groupId>org.thingsboard</groupId>
             <artifactId>rest-client</artifactId>
             <version>${thingsboard.version}</version>
@@ -43,12 +49,12 @@
         </dependency>
     </dependencies>
 
-    <repositories>
+    <!--<repositories>
         <repository>
             <id>thingsboard</id>
             <url>https://repo.thingsboard.io/artifactory/libs-release-public</url>
         </repository>
-    </repositories>
+    </repositories>-->
 
 
 </project>

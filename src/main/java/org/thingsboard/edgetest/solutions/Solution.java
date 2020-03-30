@@ -20,6 +20,8 @@ abstract public class Solution {
 
     abstract void installDevices(RestClient restClient);  // for the moment abstract
 
+    abstract void installEdges(RestClient restClient); // for the moment abstract
+
     abstract public void emulate(RestClient restClient, Client client, String hostname);
 
     abstract String getSolutionName();
@@ -44,6 +46,10 @@ abstract public class Solution {
 
     JsonNode getDevicesAsJsonNode() throws IOException {
         return readFileContentToJsonNode(getEntitiesDir(), "devices.json");
+    }
+
+    JsonNode getEdgesAsJsonNode() throws IOException {
+        return readFileContentToJsonNode(getEntitiesDir(), "edges.json");
     }
 
     JsonNode getTelemetryAsJsonNode() throws IOException {

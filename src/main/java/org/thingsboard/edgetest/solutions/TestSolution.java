@@ -6,6 +6,7 @@ import org.thingsboard.edgetest.data.TelemetryProfile;
 import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.rest.client.RestClient;
 import org.thingsboard.server.common.data.Device;
+import org.thingsboard.server.common.data.edge.Edge;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,6 +34,22 @@ public class TestSolution extends Solution{
                 device.setType(mapper.treeToValue(deviceNode.get("type"), String.class));
                 device.setLabel(mapper.treeToValue(deviceNode.get("label"), String.class));
                 restClient.saveDevice(device);
+                //restClient.assignDeviceToEdge(edge.getId(), device.getId());
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    void installEdges(RestClient restClient) {
+        try {
+            for (JsonNode edgesNode: getEdgesAsJsonNode()) {
+                Edge edge = new Edge();
+                edge.setName(mapper.treeToValue(edgesNode.get("name"), String.class));
+                edge.setType(mapper.treeToValue(edgesNode.get("type"), String.class));
+                edge.setLabel(mapper.treeToValue(edgesNode.get("label"), String.class));
+                //restClient.saveEdge(edge);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
