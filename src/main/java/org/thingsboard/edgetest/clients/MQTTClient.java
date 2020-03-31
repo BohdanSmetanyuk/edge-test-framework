@@ -35,6 +35,9 @@ public class MQTTClient extends Client{
     public void init(String hostname, String token) {
 
         topic = V1 + DEVICES_ME + TELEMETRY;
+        if(hostname.contains("localhost")) {
+            hostname = hostname.substring(0, 12);
+        }
         broker = PROTOCOL + hostname + ":" + port;
 
         try {

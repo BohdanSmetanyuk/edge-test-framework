@@ -31,7 +31,7 @@ abstract public class Solution {
     abstract List<TelemetryProfile> initTelemetryProfiles();
 
     String getDataDir() {
-        return Paths.get("src\\main\\data").toFile().getAbsolutePath();
+        return Paths.get("src/main/data").toFile().getAbsolutePath(); // "src\\main\\data" on windows
     }
 
     Path getEntitiesDir() {

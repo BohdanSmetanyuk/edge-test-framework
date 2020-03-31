@@ -17,7 +17,7 @@ abstract public class Service {
     @Value("${user.password}")
     protected String password;
 
-    protected final static String REST_CLIENT_PROTOCOL = "https";
+    protected final static String REST_CLIENT_PROTOCOL = "http";
 
     protected RestClient restClient;
 
