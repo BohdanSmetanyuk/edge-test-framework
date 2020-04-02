@@ -1,7 +1,6 @@
 package org.thingsboard.edgetest.example;
 
 import org.thingsboard.rest.client.RestClient;
-import org.thingsboard.server.common.data.edge.Edge;
 
 public class TestFeatures {
 
@@ -12,19 +11,8 @@ public class TestFeatures {
 
         RestClient client = new RestClient(url);
         client.login(username, password);
-
-        Edge edge = new Edge();
-
-        edge.setName("Edge 1");
-        edge.setType("simple_test_edge");
-
-        // ?
-        edge.setSecret("1234");
-        edge.setRoutingKey("qwer");
-
-        client.saveEdge(edge);
-
     }
+
     // *** edge-controller ***
     // unassignEdgeFromCustomer +
     // assignEdgeToPublicCustomer
@@ -39,9 +27,10 @@ public class TestFeatures {
     // getEdgesByIds +
     // getEdges
     // getTenantEdge +
-    // getTenantEdges
+    // getTenantEdges +
 
     // *** device-controller ***
     // unassignDeviceFromEdge +
     // assignDeviceToEdge +
+    // getEdgeDevices +
 }

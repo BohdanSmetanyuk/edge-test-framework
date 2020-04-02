@@ -41,6 +41,11 @@ public class TestSolution2 extends Solution {
     }
 
     @Override
+    public void uninstall(RestClient restClient) {
+
+    }
+
+    @Override
     List<TelemetryProfile> initTelemetryProfiles() {
         return null;
     }

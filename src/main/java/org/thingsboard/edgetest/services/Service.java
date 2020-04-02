@@ -13,11 +13,11 @@ abstract public class Service {
     protected String hostname;
 
     @Value("${user.username}")
-    protected String username;
+    private String username;
     @Value("${user.password}")
-    protected String password;
+    private String password;
 
-    protected final static String REST_CLIENT_PROTOCOL = "http";
+    private final static String REST_CLIENT_PROTOCOL = "http";
 
     protected RestClient restClient;
 

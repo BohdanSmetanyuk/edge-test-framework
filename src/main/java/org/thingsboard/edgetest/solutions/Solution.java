@@ -12,21 +12,25 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+// Think about abstract and non abstract methods
+
 abstract public class Solution {
 
     ObjectMapper mapper = new ObjectMapper();
 
     abstract public void install(RestClient restClient);
 
-    abstract void installDevices(RestClient restClient) throws IOException;  // for the moment abstract
+    abstract void installDevices(RestClient restClient) throws IOException;
 
-    abstract void installEdges(RestClient restClient) throws IOException; // for the moment abstract
+    abstract void installEdges(RestClient restClient) throws IOException;
 
-    abstract void assignDevicesToEdges(RestClient restClient) throws IOException; // for the moment abstract
+    abstract void assignDevicesToEdges(RestClient restClient) throws IOException;
 
     abstract public void emulate(RestClient restClient, Client client, String hostname);
 
     abstract String getSolutionName();
+
+    abstract public void uninstall(RestClient restClient);
 
     abstract List<TelemetryProfile> initTelemetryProfiles();
 

@@ -5,5 +5,12 @@
     "label": "Temperature and humidity",
     "profile": "simple_thermometer",
     "edge": "Edge1"
+  },
+  {
+    "name": "Watermeter",
+    "type": "watermeter",
+    "label": "Water use",
+    "profile": "simple_watermeter",
+    "edge": "Edge1"
   }
 ]
