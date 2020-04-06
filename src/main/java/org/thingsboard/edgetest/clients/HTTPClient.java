@@ -33,5 +33,4 @@ public class HTTPClient extends Client{
             ex.printStackTrace();
         }
     }
-
 }

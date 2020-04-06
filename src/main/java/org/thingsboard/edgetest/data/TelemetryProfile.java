@@ -1,8 +1,9 @@
 package org.thingsboard.edgetest.data;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import org.thingsboard.server.common.data.id.DeviceId;
+import org.thingsboard.server.common.data.kv.TsKvEntry;
+
+import java.util.*;
 
 public class TelemetryProfile {
 
@@ -35,6 +36,19 @@ public class TelemetryProfile {
         return content.toString();
     }
 
+    public String convertTsKvEntryListToSimpleString(List<TsKvEntry> tsKvEntryList) { // upgrade later
+        StringBuilder simpleString = new StringBuilder();
+        for(TsKvEntry tsKvEntry: tsKvEntryList) {
+            simpleString.append(tsKvEntry.getKey());
+            simpleString.append(tsKvEntry.getValue());
+        }
+        return simpleString.toString();
+    }
+
+    public String convertContentToSimpleString(String content) {
+        return content.replaceAll("\\W", "");
+    }
+
     private int generateRandomValue(int minValue, int maxValue) {
         return (int)(minValue + Math.random()*(maxValue-minValue));
     }
@@ -55,8 +69,8 @@ public class TelemetryProfile {
         this.publishFrequencyInMillis = publishFrequencyInMillis;
     }
 
-    public Map getKeysAndValues() {
-        return keysAndValues;
+    public List<String> getTelemetryKeys() {
+        return new ArrayList<>(keysAndValues.keySet());
     }
 
     public void putKeysAndValues(String key, HashMap minMaxValues) {

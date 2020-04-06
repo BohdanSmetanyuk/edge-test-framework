@@ -3,6 +3,7 @@ package org.thingsboard.edgetest.clients;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -16,17 +17,7 @@ public class MQTTClient extends Client{
     private final static String DEVICES_ME = "devices/me";
 
     private String topic;
-    private String broker;
-
-    private boolean isSessionCleaned = true; // true or false
-    private int keepAliveInterval = 1; // int value
-    private int qos = 0; // 0, 1 or 2
-    private boolean retained = false; // true or false
-
-    private String clientID = "EdgeTestMQTTClient";
-
     private MqttClient mqttClient;
-    private MqttConnectOptions mqttConnectOptions;
 
     @Value("${mqtt.port}")
     private String port;
@@ -38,14 +29,14 @@ public class MQTTClient extends Client{
         if(hostname.contains("localhost")) {
             hostname = hostname.substring(0, 12);
         }
-        broker = PROTOCOL + hostname + ":" + port;
+        String broker = PROTOCOL + hostname + ":" + port;
 
         try {
-            mqttClient = new MqttClient(broker, clientID, new MemoryPersistence());
+            mqttClient = new MqttClient(broker, "EdgeTestMQTTClient", new MemoryPersistence());   // string value
 
-            mqttConnectOptions = new MqttConnectOptions();
-            mqttConnectOptions.setCleanSession(isSessionCleaned);
-            mqttConnectOptions.setKeepAliveInterval(keepAliveInterval);
+            MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+            mqttConnectOptions.setCleanSession(true);   // true or false
+            mqttConnectOptions.setKeepAliveInterval(1);   // int value
             mqttConnectOptions.setUserName(token);
 
             mqttClient.connect(mqttConnectOptions); // disconnect !!!
@@ -58,10 +49,19 @@ public class MQTTClient extends Client{
     @Override
     public void publish(String content) {
         try {
-            mqttClient.publish(topic, content.getBytes(), qos, retained);
+            mqttClient.publish(topic,  new MqttMessage(content.getBytes()));
         } catch (MqttException ex) {  // Exceptions
             ex.printStackTrace();
         }
     }
 
+    @Override
+    public void disconnect() {
+        super.disconnect();
+        try {
+            mqttClient.disconnect();
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -2,6 +2,7 @@ package org.thingsboard.edgetest.solutions;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Component;
+import org.thingsboard.edgetest.data.DeviceEmulator;
 import org.thingsboard.edgetest.data.TelemetryProfile;
 import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.rest.client.RestClient;
@@ -130,29 +131,12 @@ public class TestSolution extends Solution{
     }
 
     @Override
-    public void emulate(RestClient restClient, Client client, String hostname) {  // upgrade later
-
-        List<TelemetryProfile> telemetryProfileList = initTelemetryProfiles();
-
-        for (TelemetryProfile tp: telemetryProfileList) {
-            Device device = restClient.getTenantDevice(tp.getDeviceName()).get();
-            String token = restClient.getDeviceCredentialsByDeviceId(device.getId()).get().getCredentialsId();
-
-            client.init(hostname, token);
-
-
-            // here must be some concurrency
-            while(true) {
-                String content = tp.generateContent();
-                client.publish(content);
-                try {
-                    Thread.sleep(tp.getPublishFrequencyInMillis());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            //
-
+    public void emulate(RestClient restClient, Client client, String hostname) {  // upgrade later !!!
+        for (TelemetryProfile tp:  initTelemetryProfiles()) {
+            DeviceId deviceId = restClient.getTenantDevice(tp.getDeviceName()).get().getId();
+            String accessToken = restClient.getDeviceCredentialsByDeviceId(deviceId).get().getCredentialsId();
+            // ThreadPoolExecutor, ExecutorService, ScheduledExecutorService, Future
+            new DeviceEmulator(tp, client, restClient, deviceId, accessToken, hostname).start();
         }
     }
 
@@ -179,7 +163,7 @@ public class TestSolution extends Solution{
                         telemetryProfileList.add(telemetryProfile);
                     }
                     else {
-                        System.out.println("No telemetry found for profile: " + telemetryProfile.getProfile() + "\nDevice name:" + telemetryProfile.getDeviceName());  // Exception
+                        System.out.println("No telemetry found for profile: " + telemetryProfile.getProfile() + "\nDevice name: " + telemetryProfile.getDeviceName());  // Exception
                     }
                 }
             }
