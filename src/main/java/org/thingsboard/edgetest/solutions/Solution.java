@@ -26,13 +26,13 @@ abstract public class Solution {
 
     abstract void assignDevicesToEdges(RestClient restClient) throws IOException;
 
-    abstract public void emulate(RestClient restClient, Client client, String hostname);
+    abstract public void emulate(RestClient restClient, Client client, String hostname, long emulationTime);
 
     abstract String getSolutionName();
 
     abstract public void uninstall(RestClient restClient);
 
-    abstract List<TelemetryProfile> initTelemetryProfiles();
+    abstract List<TelemetryProfile> initTelemetryProfiles(RestClient restClient);
 
     String getDataDir() {
         return Paths.get("src/main/data").toFile().getAbsolutePath(); // "src\\main\\data" on windows

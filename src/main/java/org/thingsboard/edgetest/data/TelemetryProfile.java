@@ -1,19 +1,22 @@
 package org.thingsboard.edgetest.data;
 
-import org.thingsboard.server.common.data.id.DeviceId;
 import org.thingsboard.server.common.data.kv.TsKvEntry;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class TelemetryProfile {
 
-    private String deviceName;
+    private DeviceDetails deviceDetails;
     private String profile;
     private int publishFrequencyInMillis;
     private Map<String, HashMap<String, Integer>> keysAndValues;
 
-    public TelemetryProfile(String deviceName, String profile) {
-        this.deviceName = deviceName;
+    public TelemetryProfile(DeviceDetails deviceDetails, String profile) {
+        this.deviceDetails = deviceDetails;
         this.profile = profile;
         keysAndValues = new HashMap<>();
     }
@@ -53,8 +56,8 @@ public class TelemetryProfile {
         return (int)(minValue + Math.random()*(maxValue-minValue));
     }
 
-    public String getDeviceName() {
-        return deviceName;
+    public DeviceDetails getDeviceDetails() {
+        return deviceDetails;
     }
 
     public String getProfile() {

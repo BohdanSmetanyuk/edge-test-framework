@@ -2,6 +2,7 @@ package org.thingsboard.edgetest.solutions;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Component;
+import org.thingsboard.edgetest.data.DeviceDetails;
 import org.thingsboard.edgetest.data.DeviceEmulator;
 import org.thingsboard.edgetest.data.TelemetryProfile;
 import org.thingsboard.edgetest.clients.Client;
@@ -131,23 +132,21 @@ public class TestSolution extends Solution{
     }
 
     @Override
-    public void emulate(RestClient restClient, Client client, String hostname) {  // upgrade later !!!
-        for (TelemetryProfile tp:  initTelemetryProfiles()) {
-            DeviceId deviceId = restClient.getTenantDevice(tp.getDeviceName()).get().getId();
-            String accessToken = restClient.getDeviceCredentialsByDeviceId(deviceId).get().getCredentialsId();
+    public void emulate(RestClient restClient, Client client, String hostname, long emulationTime) {  // upgrade later !!!
+        for (TelemetryProfile tp:  initTelemetryProfiles(restClient)) {
             // ThreadPoolExecutor, ExecutorService, ScheduledExecutorService, Future
-            new DeviceEmulator(tp, client, restClient, deviceId, accessToken, hostname).start();
+            new DeviceEmulator(tp, client, restClient, hostname, emulationTime).start();   // emulationTime here technically
         }
     }
 
     @Override
-    List<TelemetryProfile> initTelemetryProfiles() {
+    List<TelemetryProfile> initTelemetryProfiles(RestClient restClient) {
         List<TelemetryProfile> telemetryProfileList = new ArrayList<>();
         try {
             for (JsonNode deviceNode : getDevicesAsJsonNode()) {
                 String deviceName = mapper.treeToValue(deviceNode.get("name"), String.class);
                 String profile = mapper.treeToValue(deviceNode.get("profile"), String.class);
-                TelemetryProfile telemetryProfile = new TelemetryProfile(deviceName, profile);
+                TelemetryProfile telemetryProfile = new TelemetryProfile(new DeviceDetails(deviceName, restClient), profile);
                 for (JsonNode telemetryNode : getTelemetryAsJsonNode()) {
                     if(telemetryProfile.getProfile().equals(mapper.treeToValue(telemetryNode.get("profile"), String.class))) {
                         telemetryProfile.setPublishFrequencyInMillis(mapper.treeToValue(telemetryNode.get("publishFrequencyInMillis"), int.class));
@@ -163,7 +162,7 @@ public class TestSolution extends Solution{
                         telemetryProfileList.add(telemetryProfile);
                     }
                     else {
-                        System.out.println("No telemetry found for profile: " + telemetryProfile.getProfile() + "\nDevice name: " + telemetryProfile.getDeviceName());  // Exception
+                        System.out.println("No telemetry found for profile: " + telemetryProfile.getProfile() + "\nDevice name: " + telemetryProfile.getDeviceDetails().getDeviceName());  // Exception
                     }
                 }
             }

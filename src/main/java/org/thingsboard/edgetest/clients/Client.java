@@ -12,7 +12,7 @@ abstract public class Client {
     abstract public void publish(String content);
 
     public void disconnect() {
-        System.out.println("Disconnect client");
+        System.out.println("Disconnect client from server.");
     }
 
 }

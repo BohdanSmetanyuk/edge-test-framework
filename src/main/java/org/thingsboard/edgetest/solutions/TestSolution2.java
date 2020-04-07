@@ -31,7 +31,7 @@ public class TestSolution2 extends Solution {
     }
 
     @Override
-    public void emulate(RestClient restClient, Client client, String hostname) {
+    public void emulate(RestClient restClient, Client client, String hostname, long emulationTime) {
         System.out.println("emulate 2");
     }
 
@@ -46,7 +46,7 @@ public class TestSolution2 extends Solution {
     }
 
     @Override
-    List<TelemetryProfile> initTelemetryProfiles() {
+    List<TelemetryProfile> initTelemetryProfiles(RestClient restClient) {
         return null;
     }
 }

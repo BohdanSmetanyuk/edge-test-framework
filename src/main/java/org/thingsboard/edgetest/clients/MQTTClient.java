@@ -39,7 +39,7 @@ public class MQTTClient extends Client{
             mqttConnectOptions.setKeepAliveInterval(1);   // int value
             mqttConnectOptions.setUserName(token);
 
-            mqttClient.connect(mqttConnectOptions); // disconnect !!!
+            mqttClient.connect(mqttConnectOptions);
         } catch (MqttException ex) {  // Exceptions
             ex.printStackTrace();
         }

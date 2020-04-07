@@ -15,12 +15,15 @@ public class EmulateService extends Service {
     @Value("${telemetry.send.protocol}")
     private String telemetrySendProtocol;
 
+    @Value("${emulation.time}")
+    private long emulationTime;
+
     private Client client;
 
     public void emulate() {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(RunEmulatorApplication.class);
         Solution solution = context.getBean(solutionName, Solution.class);
         client = context.getBean(telemetrySendProtocol, Client.class);
-        solution.emulate(restClient, client, hostname);
+        solution.emulate(restClient, client, hostname, emulationTime);
     }
 }
