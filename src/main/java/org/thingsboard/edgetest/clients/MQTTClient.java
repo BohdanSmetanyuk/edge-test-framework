@@ -6,11 +6,14 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.thingsboard.edgetest.exceptions.ClientNotConnectedException;
 
 
 // working better than http client (sometimes 1 sec break) + mqtt protocol is "lighter" than http
 @Component("mqtt")
+@Scope("prototype")
 public class MQTTClient extends Client{
 
     private final static String PROTOCOL = "tcp";
@@ -40,17 +43,19 @@ public class MQTTClient extends Client{
             mqttConnectOptions.setUserName(token);
 
             mqttClient.connect(mqttConnectOptions);
-        } catch (MqttException ex) {  // Exceptions
+        } catch (MqttException ex) {
             ex.printStackTrace();
         }
-
+        connected = true;
+        System.out.println("Client connected to server.");
     }
 
     @Override
     public void publish(String content) {
         try {
+            isConnected();
             mqttClient.publish(topic,  new MqttMessage(content.getBytes()));
-        } catch (MqttException ex) {  // Exceptions
+        } catch (MqttException ex) {
             ex.printStackTrace();
         }
     }

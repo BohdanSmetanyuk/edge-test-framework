@@ -31,8 +31,8 @@ public class TestSolution2 extends Solution {
     }
 
     @Override
-    public void emulate(RestClient restClient, Client client, String hostname, long emulationTime) {
-        System.out.println("emulate 2");
+    public void emulate(RestClient restClient, String hostname, String telemetrySendProtocol, long emulationTime) {
+
     }
 
     @Override

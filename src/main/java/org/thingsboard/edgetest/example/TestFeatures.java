@@ -17,13 +17,13 @@ public class TestFeatures {
     // unassignEdgeFromCustomer +
     // assignEdgeToPublicCustomer
     // assignEdgeToCustomer +
-    // getCustomerEdges
+    // getCustomerEdges // test
     // saveEdge +
-    // getEdgeTypes + /api/edges -> /api/edge/types
+    // getEdgeTypes +
     // deleteEdge +
     // getEdgeById +
     // setRootRuleChain
-    // findByQuery
+    // findByQuery  // test
     // getEdgesByIds +
     // getEdges
     // getTenantEdge +

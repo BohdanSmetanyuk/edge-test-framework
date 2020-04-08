@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
 import org.thingsboard.edgetest.RunEmulatorApplication;
-import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.edgetest.services.Service;
 import org.thingsboard.edgetest.solutions.Solution;
 
@@ -18,12 +17,9 @@ public class EmulateService extends Service {
     @Value("${emulation.time}")
     private long emulationTime;
 
-    private Client client;
-
     public void emulate() {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(RunEmulatorApplication.class);
         Solution solution = context.getBean(solutionName, Solution.class);
-        client = context.getBean(telemetrySendProtocol, Client.class);
-        solution.emulate(restClient, client, hostname, emulationTime);
+        solution.emulate(restClient, hostname, telemetrySendProtocol, emulationTime);
     }
 }

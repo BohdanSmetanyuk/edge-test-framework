@@ -1,6 +1,7 @@
-package org.thingsboard.edgetest.data;
+package org.thingsboard.edgetest.emulate;
 
 import org.thingsboard.edgetest.clients.Client;
+import org.thingsboard.edgetest.data.TelemetryProfile;
 import org.thingsboard.rest.client.RestClient;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ public class DeviceEmulator extends Thread {  // upgrade later !!!
 
 
     public DeviceEmulator(TelemetryProfile tp, Client client, RestClient restClient, String hostname, long emulationTime) {  // emulationTime here technically
+        super(tp.getDeviceDetails().getDeviceName() + " emulator");
         this.tp = tp;
         this.client = client;
         this.restClient = restClient;
@@ -24,7 +26,7 @@ public class DeviceEmulator extends Thread {  // upgrade later !!!
         // it's technically
         this.emulationTime = emulationTime;
 
-        client.init(hostname, tp.getDeviceDetails().getAccessToken());
+        client.init(hostname, tp.getDeviceDetails().getAccessToken()); // test for mqtt client
     }
 
     public void run() { // upgrade later !!!
@@ -57,7 +59,10 @@ public class DeviceEmulator extends Thread {  // upgrade later !!!
         }
 
         client.disconnect();
+
+        System.out.println("Device telemetry");
         System.out.println(deviceTelemetry);
+        System.out.println("Cloud telemetry");
         System.out.println(cloudTelemetry);
         System.out.println(deviceTelemetry.equals(cloudTelemetry));
     }

@@ -1,11 +1,14 @@
 package org.thingsboard.edgetest.solutions;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext; ///
 import org.springframework.stereotype.Component;
+import org.thingsboard.edgetest.RunEmulatorApplication;  ///
 import org.thingsboard.edgetest.data.DeviceDetails;
-import org.thingsboard.edgetest.data.DeviceEmulator;
+import org.thingsboard.edgetest.emulate.DeviceEmulator;
 import org.thingsboard.edgetest.data.TelemetryProfile;
 import org.thingsboard.edgetest.clients.Client;
+import org.thingsboard.edgetest.exceptions.NoTelemetryProfilesFoundException;
 import org.thingsboard.rest.client.RestClient;
 import org.thingsboard.server.common.data.Device;
 import org.thingsboard.server.common.data.edge.Edge;
@@ -31,7 +34,7 @@ public class TestSolution extends Solution{
             installDevices(restClient);
             //installEdges(restClient);
             //assignDevicesToEdges(restClient);
-        } catch (IOException ex) { // exceptions
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
@@ -73,15 +76,13 @@ public class TestSolution extends Solution{
     }
 
     @Override
-    public void uninstall(RestClient restClient) {
+    public void uninstall(RestClient restClient) {  // upgrade later
 
         List<EdgeId> edgesDelete = new ArrayList<>();
         List<DeviceId> devicesDelete = new ArrayList<>();
-
         try {
             List<String> edgeTypes = getEdgeTypes();
             List<String> deviceTypes = getDeviceTypes();
-
             for(String edgeType: edgeTypes) {
                 for (Edge edge : restClient.getTenantEdges(edgeType, new TextPageLink(edgeTypes.size())).getData()) {
                     edgesDelete.add(edge.getId());
@@ -92,11 +93,9 @@ public class TestSolution extends Solution{
                     }
                 }
             }
-
-        } catch (IOException ex) {  // exceptions
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
-
         deleteDevices(devicesDelete, restClient);
         deleteEdges(edgesDelete, restClient);
     }
@@ -132,9 +131,11 @@ public class TestSolution extends Solution{
     }
 
     @Override
-    public void emulate(RestClient restClient, Client client, String hostname, long emulationTime) {  // upgrade later !!!
+    public void emulate(RestClient restClient, String hostname, String telemetrySendProtocol, long emulationTime) {  // upgrade later !!!
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(RunEmulatorApplication.class);
         for (TelemetryProfile tp:  initTelemetryProfiles(restClient)) {
             // ThreadPoolExecutor, ExecutorService, ScheduledExecutorService, Future
+            Client client = context.getBean(telemetrySendProtocol, Client.class);
             new DeviceEmulator(tp, client, restClient, hostname, emulationTime).start();   // emulationTime here technically
         }
     }
@@ -146,24 +147,17 @@ public class TestSolution extends Solution{
             for (JsonNode deviceNode : getDevicesAsJsonNode()) {
                 String deviceName = mapper.treeToValue(deviceNode.get("name"), String.class);
                 String profile = mapper.treeToValue(deviceNode.get("profile"), String.class);
-                TelemetryProfile telemetryProfile = new TelemetryProfile(new DeviceDetails(deviceName, restClient), profile);
+                boolean telemetryFound = false;
                 for (JsonNode telemetryNode : getTelemetryAsJsonNode()) {
-                    if(telemetryProfile.getProfile().equals(mapper.treeToValue(telemetryNode.get("profile"), String.class))) {
-                        telemetryProfile.setPublishFrequencyInMillis(mapper.treeToValue(telemetryNode.get("publishFrequencyInMillis"), int.class));
-                        for (JsonNode keyAndValues: getKeysAndValuesAsJsonNode(telemetryNode)) {
-                            HashMap<String, Integer> minMaxValues = new HashMap<>();
-                            String key = mapper.treeToValue(keyAndValues.get("key"), String.class);
-                            int maxValue = mapper.treeToValue(keyAndValues.get("maxValue"), int.class);
-                            int minValue = mapper.treeToValue(keyAndValues.get("minValue"), int.class);
-                            minMaxValues.put("minValue", minValue);
-                            minMaxValues.put("maxValue", maxValue);
-                            telemetryProfile.putKeysAndValues(key, minMaxValues);
-                        }
+                    if(profile.equals(mapper.treeToValue(telemetryNode.get("profile"), String.class))) {
+                        telemetryFound = true;
+                        int publishFrequencyInMillis = mapper.treeToValue(telemetryNode.get("publishFrequencyInMillis"), int.class);
+                        TelemetryProfile telemetryProfile = TelemetryProfile.getTelemetryProfile(deviceName, restClient, profile, publishFrequencyInMillis, telemetryNode);
                         telemetryProfileList.add(telemetryProfile);
                     }
-                    else {
-                        System.out.println("No telemetry found for profile: " + telemetryProfile.getProfile() + "\nDevice name: " + telemetryProfile.getDeviceDetails().getDeviceName());  // Exception
-                    }
+                }
+                if(!telemetryFound) {
+                    throw new NoTelemetryProfilesFoundException(profile, deviceName);
                 }
             }
         } catch (IOException ex) {

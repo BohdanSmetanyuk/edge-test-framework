@@ -3,7 +3,6 @@ package org.thingsboard.edgetest.solutions;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.thingsboard.edgetest.data.TelemetryProfile;
-import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.rest.client.RestClient;
 
 import java.io.IOException;
@@ -26,7 +25,7 @@ abstract public class Solution {
 
     abstract void assignDevicesToEdges(RestClient restClient) throws IOException;
 
-    abstract public void emulate(RestClient restClient, Client client, String hostname, long emulationTime);
+    abstract public void emulate(RestClient restClient, String hostname, String telemetrySendProtocol, long emulationTime);
 
     abstract String getSolutionName();
 
@@ -60,10 +59,6 @@ abstract public class Solution {
 
     JsonNode getTelemetryAsJsonNode() throws IOException {
         return readFileContentToJsonNode(getTelemetryDir(), "telemetry.json");
-    }
-
-    JsonNode getKeysAndValuesAsJsonNode(JsonNode telemetryNode) throws IOException {
-        return mapper.treeToValue(telemetryNode.get("telemetry"), JsonNode.class);
     }
 
 }

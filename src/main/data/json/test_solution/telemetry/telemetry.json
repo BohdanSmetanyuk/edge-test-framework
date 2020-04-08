@@ -14,5 +14,16 @@
         "minValue": 1
       }
     ]
+  },
+  {
+    "profile": "simple_watermeter",
+    "publishFrequencyInMillis": 2000,
+    "telemetry": [
+      {
+        "key": "volume",
+        "maxValue": 5,
+        "minValue": 0
+      }
+    ]
   }
 ]
