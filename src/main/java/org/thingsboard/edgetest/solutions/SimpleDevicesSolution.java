@@ -2,16 +2,15 @@ package org.thingsboard.edgetest.solutions;
 
 import org.springframework.stereotype.Component;
 import org.thingsboard.edgetest.data.TelemetryProfile;
-import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.rest.client.RestClient;
 
 import java.io.IOException;
 import java.util.List;
 
 
-// second test solution (no need yet)
-@Component
-public class TestSolution2 extends Solution {
+@Component("simple-devices-solution")
+public class SimpleDevicesSolution extends Solution {
+
     @Override
     public void install(RestClient restClient) { System.out.println("install 2"); }
 

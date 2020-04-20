@@ -11,7 +11,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
+
+// Think about static methods !!!
 public class TelemetryProfile {
 
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -46,16 +49,14 @@ public class TelemetryProfile {
         return mapper.treeToValue(telemetryNode.get("telemetry"), JsonNode.class);
     }
 
-    public String generateContent() {  // upgrade later
-        StringBuilder content = new StringBuilder("{");
+    public String generateContent() {
         Iterator<String> iterator = telemetry.keySet().iterator();
+        Random random = new Random();
+        StringBuilder content = new StringBuilder("{");
         while (iterator.hasNext()) {
-            content.append("'");
             String key = iterator.next();
-            content.append(key);
-            content.append("'");
-            content.append(":");
-            content.append(generateRandomValue(telemetry.get(key).get("minValue"), telemetry.get(key).get("maxValue")));
+            int value = random.nextInt(telemetry.get(key).get("maxValue")+1)+telemetry.get(key).get("minValue");
+            content.append("'").append(key).append("'").append(":").append(value);
             if(iterator.hasNext()) {
                 content.append(",");
             }
@@ -64,17 +65,21 @@ public class TelemetryProfile {
         return content.toString();
     }
 
-    private int generateRandomValue(int minValue, int maxValue) {
-        return (int)(minValue + Math.random()*(maxValue-minValue));
-    }
+    public List<String> convertTsKvEntryListToSimpleStringList(List<TsKvEntry> tsKvEntryList) { // upgrade
+        List<String> simpleStringList = new ArrayList<>();
 
-    public String convertTsKvEntryListToSimpleString(List<TsKvEntry> tsKvEntryList) { // upgrade later
-        StringBuilder simpleString = new StringBuilder();
-        for(TsKvEntry tsKvEntry: tsKvEntryList) {
-            simpleString.append(tsKvEntry.getKey());
-            simpleString.append(tsKvEntry.getValue());
+        int numberOfKeys = getTelemetryKeys().size(); // here ?
+        int sizeOfTsKvEntrySublist = tsKvEntryList.size()/numberOfKeys;
+
+        for (int i = sizeOfTsKvEntrySublist-1; i >= 0; i--) {
+            String ss = "";
+            for(int j=0; j<numberOfKeys; j++) {
+                TsKvEntry tsKvEntry = tsKvEntryList.get(i+j*sizeOfTsKvEntrySublist);
+                ss += tsKvEntry.getKey() + tsKvEntry.getValueAsString();
+            }
+            simpleStringList.add(ss);
         }
-        return simpleString.toString();
+        return simpleStringList;
     }
 
     public String convertContentToSimpleString(String content) {
@@ -83,10 +88,6 @@ public class TelemetryProfile {
 
     public DeviceDetails getDeviceDetails() {
         return deviceDetails;
-    }
-
-    public String getProfile() {
-        return profile;
     }
 
     public int getPublishFrequencyInMillis() {

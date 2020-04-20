@@ -1,4 +1,4 @@
-package org.thingsboard.edgetest.example;
+package example;
 
 import org.thingsboard.rest.client.RestClient;
 
@@ -33,4 +33,9 @@ public class TestFeatures {
     // unassignDeviceFromEdge +
     // assignDeviceToEdge +
     // getEdgeDevices +
+
+    // *** asset-controller ***
+    // unassignAssetFromEdge  // test
+    // assignAssetToEdge  // test
+    // getEdgeAssets  // test
 }

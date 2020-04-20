@@ -8,7 +8,6 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.thingsboard.edgetest.exceptions.ClientNotConnectedException;
 
 
 // working better than http client (sometimes 1 sec break) + mqtt protocol is "lighter" than http

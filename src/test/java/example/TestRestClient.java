@@ -1,4 +1,4 @@
-package org.thingsboard.edgetest.example;
+package example;
 
 import org.thingsboard.rest.client.RestClient;
 import org.thingsboard.server.common.data.Device;
@@ -23,7 +23,9 @@ public class TestRestClient {
 
         // only last ts
         List<String> keys = client.getTimeseriesKeys(device.getId());
-        System.out.println(client.getTimeseries(device.getId(), keys, 20000000000000000L, Aggregation.NONE, new TimePageLink(1000000000)));
+        TimePageLink timePageLink = new TimePageLink(100, 1587061477994L, 1587061482256L);
+        System.out.println(client.getTimeseries(device.getId(), keys, 0L, Aggregation.NONE, timePageLink));
+
     }
 
-}
+}//keys=temperature,humidity&startTs=0&endTs=1587061482256&limit=100&agg=NONE"

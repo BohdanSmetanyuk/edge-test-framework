@@ -1,4 +1,4 @@
-package org.thingsboard.edgetest.example;
+package example;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

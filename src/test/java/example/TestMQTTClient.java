@@ -1,4 +1,4 @@
-package org.thingsboard.edgetest.example;
+package example;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;

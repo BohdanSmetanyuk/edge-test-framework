@@ -3,54 +3,58 @@ package org.thingsboard.edgetest.emulate;
 import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.edgetest.data.TelemetryProfile;
 import org.thingsboard.rest.client.RestClient;
+import org.thingsboard.server.common.data.kv.Aggregation;
+import org.thingsboard.server.common.data.page.TimePageLink;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeviceEmulator extends Thread {  // upgrade later !!!
+// implements Runnable
+public class DeviceEmulator extends Thread {  // upgrade later
 
     private TelemetryProfile tp;
     private Client client;
     private RestClient restClient;
 
-    // it's technically
     private long emulationTime;
 
+    private List<String> deviceTelemetry;
+    private List<String> cloudTelemetry;
+    //private List<String> edgeTelemetry;
 
-    public DeviceEmulator(TelemetryProfile tp, Client client, RestClient restClient, String hostname, long emulationTime) {  // emulationTime here technically
+    private Long startTs;
+    private Long endTs;
+
+    public DeviceEmulator(TelemetryProfile tp, Client client, RestClient restClient, String hostname, long emulationTime) {  // emulationTime here?
         super(tp.getDeviceDetails().getDeviceName() + " emulator");
         this.tp = tp;
         this.client = client;
         this.restClient = restClient;
-
-        // it's technically
         this.emulationTime = emulationTime;
 
-        client.init(hostname, tp.getDeviceDetails().getAccessToken()); // test for mqtt client
+        deviceTelemetry = new ArrayList<>();
+        cloudTelemetry = new ArrayList<>();
+        //edgeTelemetry = new ArrayList<>();
+
+        client.init(hostname, tp.getDeviceDetails().getAccessToken());
     }
 
-    public void run() { // upgrade later !!!
-        List<String> deviceTelemetry = new ArrayList<>();
-        List<String> cloudTelemetry = new ArrayList<>();
+    public void run() {
 
-        // it's technically
-        long breakTime = System.currentTimeMillis()+emulationTime;  // to env.
+        pushTelemetry();
+        compareTelemetry();
+    }
 
-        while(System.currentTimeMillis()<breakTime) { // it's technically
+    private void pushTelemetry() {
+
+        startTs = System.currentTimeMillis();
+
+        long breakTime = System.currentTimeMillis()+emulationTime;
+
+        while(System.currentTimeMillis()<breakTime) {
             String content = tp.generateContent();
             client.publish(content);
             deviceTelemetry.add(tp.convertContentToSimpleString(content));
-
-            // it's technically, no need will be when restClient.getTimeseries will working
-            // sometimes 1 sec delay
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            cloudTelemetry.add(tp.convertTsKvEntryListToSimpleString(restClient.getLatestTimeseries(tp.getDeviceDetails().getDeviceId(), tp.getTelemetryKeys())));
-
             try {
                 Thread.sleep(tp.getPublishFrequencyInMillis());
             } catch (InterruptedException e) {
@@ -60,6 +64,13 @@ public class DeviceEmulator extends Thread {  // upgrade later !!!
 
         client.disconnect();
 
+        endTs = System.currentTimeMillis();
+    }
+
+    private void compareTelemetry() { // upgrade
+
+        TimePageLink timePageLink = new TimePageLink(100, startTs, endTs);
+        cloudTelemetry = tp.convertTsKvEntryListToSimpleStringList(restClient.getTimeseries(tp.getDeviceDetails().getDeviceId(), tp.getTelemetryKeys(), 0L, Aggregation.NONE, timePageLink));
         System.out.println("Device telemetry");
         System.out.println(deviceTelemetry);
         System.out.println("Cloud telemetry");
