@@ -3,10 +3,10 @@ package org.thingsboard.edgetest;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.thingsboard.edgetest.install.UninstallService;
+import org.thingsboard.edgetest.services.uninstall.UninstallService;
 
 @Configuration
-@ComponentScan({"org.thingsboard.edgetest.solutions", "org.thingsboard.edgetest.install"})
+@ComponentScan({"org.thingsboard.edgetest.solutions", "org.thingsboard.edgetest.services.uninstall"})
 public class RunUninstallApplication {
 
     public static void main(String[] args) {

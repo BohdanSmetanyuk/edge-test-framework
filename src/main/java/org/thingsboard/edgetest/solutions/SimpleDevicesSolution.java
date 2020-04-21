@@ -9,7 +9,7 @@ import java.util.List;
 
 
 @Component("simple-devices-solution")
-public class SimpleDevicesSolution extends Solution {
+public class SimpleDevicesSolution extends Solution {  // ???
 
     @Override
     public void install(RestClient restClient) { System.out.println("install 2"); }

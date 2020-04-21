@@ -1,10 +1,10 @@
 package org.thingsboard.edgetest.solutions;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext; ///
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
-import org.thingsboard.edgetest.RunEmulatorApplication;  ///
-import org.thingsboard.edgetest.emulate.DeviceEmulator;
+import org.thingsboard.edgetest.RunEmulatorApplication;
+import org.thingsboard.edgetest.util.DeviceEmulator;
 import org.thingsboard.edgetest.data.TelemetryProfile;
 import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.edgetest.exceptions.NoTelemetryProfilesFoundException;
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component("edge-test-solution")
-public class EdgeTestSolution extends Solution{
+public class EdgeTestSolution extends Solution{  // ???
 
     private static final String TEST_SOLUTION_DIR = "edge_test_solution";
 

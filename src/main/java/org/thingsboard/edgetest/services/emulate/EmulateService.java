@@ -1,4 +1,4 @@
-package org.thingsboard.edgetest.emulate;
+package org.thingsboard.edgetest.services.emulate;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;

@@ -3,7 +3,6 @@ package org.thingsboard.edgetest.data;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.thingsboard.rest.client.RestClient;
-import org.thingsboard.server.common.data.kv.TsKvEntry;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-
-// Think about static methods !!!
 public class TelemetryProfile {
 
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -45,10 +42,6 @@ public class TelemetryProfile {
         return new TelemetryProfile(new DeviceDetails(deviceName, restClient), profile, publishFrequencyInMillis, keysAndValues);
     }
 
-    public static JsonNode getKeysAndValuesAsJsonNode(JsonNode telemetryNode) throws IOException {
-        return mapper.treeToValue(telemetryNode.get("telemetry"), JsonNode.class);
-    }
-
     public String generateContent() {
         Iterator<String> iterator = telemetry.keySet().iterator();
         Random random = new Random();
@@ -65,25 +58,8 @@ public class TelemetryProfile {
         return content.toString();
     }
 
-    public List<String> convertTsKvEntryListToSimpleStringList(List<TsKvEntry> tsKvEntryList) { // upgrade
-        List<String> simpleStringList = new ArrayList<>();
-
-        int numberOfKeys = getTelemetryKeys().size(); // here ?
-        int sizeOfTsKvEntrySublist = tsKvEntryList.size()/numberOfKeys;
-
-        for (int i = sizeOfTsKvEntrySublist-1; i >= 0; i--) {
-            String ss = "";
-            for(int j=0; j<numberOfKeys; j++) {
-                TsKvEntry tsKvEntry = tsKvEntryList.get(i+j*sizeOfTsKvEntrySublist);
-                ss += tsKvEntry.getKey() + tsKvEntry.getValueAsString();
-            }
-            simpleStringList.add(ss);
-        }
-        return simpleStringList;
-    }
-
-    public String convertContentToSimpleString(String content) {
-        return content.replaceAll("\\W", "");
+    public static JsonNode getKeysAndValuesAsJsonNode(JsonNode telemetryNode) throws IOException { // ???
+        return mapper.treeToValue(telemetryNode.get("telemetry"), JsonNode.class);
     }
 
     public DeviceDetails getDeviceDetails() {

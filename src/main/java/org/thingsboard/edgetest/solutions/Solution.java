@@ -13,7 +13,7 @@ import java.util.List;
 
 // Think about abstract and non abstract methods
 
-abstract public class Solution {
+abstract public class Solution { // ???
 
     ObjectMapper mapper = new ObjectMapper();
 

@@ -3,10 +3,10 @@ package org.thingsboard.edgetest;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.thingsboard.edgetest.install.InstallService;
+import org.thingsboard.edgetest.services.install.InstallService;
 
 @Configuration
-@ComponentScan({"org.thingsboard.edgetest.solutions", "org.thingsboard.edgetest.install"})
+@ComponentScan({"org.thingsboard.edgetest.solutions", "org.thingsboard.edgetest.services.install"})
 public class RunInstallApplication {
 
     public static void main(String[] args) {

@@ -3,10 +3,10 @@ package org.thingsboard.edgetest;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.thingsboard.edgetest.emulate.EmulateService;
+import org.thingsboard.edgetest.services.emulate.EmulateService;
 
 @Configuration
-@ComponentScan({"org.thingsboard.edgetest.solutions", "org.thingsboard.edgetest.emulate", "org.thingsboard.edgetest.clients"})
+@ComponentScan({"org.thingsboard.edgetest.solutions", "org.thingsboard.edgetest.services.emulate", "org.thingsboard.edgetest.clients"})
 public class RunEmulatorApplication {
 
     public static void main(String[] args) {

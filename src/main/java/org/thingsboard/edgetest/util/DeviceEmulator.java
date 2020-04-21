@@ -1,16 +1,19 @@
-package org.thingsboard.edgetest.emulate;
+package org.thingsboard.edgetest.util;
 
 import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.edgetest.data.TelemetryProfile;
+import org.thingsboard.edgetest.util.Converter;
 import org.thingsboard.rest.client.RestClient;
+import org.thingsboard.server.common.data.id.DeviceId;
 import org.thingsboard.server.common.data.kv.Aggregation;
+import org.thingsboard.server.common.data.kv.TsKvEntry;
 import org.thingsboard.server.common.data.page.TimePageLink;
 
 import java.util.ArrayList;
 import java.util.List;
 
 // implements Runnable
-public class DeviceEmulator extends Thread {  // upgrade later
+public class DeviceEmulator extends Thread {  // upgrade
 
     private TelemetryProfile tp;
     private Client client;
@@ -24,6 +27,7 @@ public class DeviceEmulator extends Thread {  // upgrade later
 
     private Long startTs;
     private Long endTs;
+    private int limit;
 
     public DeviceEmulator(TelemetryProfile tp, Client client, RestClient restClient, String hostname, long emulationTime) {  // emulationTime here?
         super(tp.getDeviceDetails().getDeviceName() + " emulator");
@@ -47,6 +51,7 @@ public class DeviceEmulator extends Thread {  // upgrade later
 
     private void pushTelemetry() {
 
+        limit = 0;
         startTs = System.currentTimeMillis();
 
         long breakTime = System.currentTimeMillis()+emulationTime;
@@ -54,7 +59,8 @@ public class DeviceEmulator extends Thread {  // upgrade later
         while(System.currentTimeMillis()<breakTime) {
             String content = tp.generateContent();
             client.publish(content);
-            deviceTelemetry.add(tp.convertContentToSimpleString(content));
+            deviceTelemetry.add(Converter.convertContentToSimpleString(content));
+            limit++;
             try {
                 Thread.sleep(tp.getPublishFrequencyInMillis());
             } catch (InterruptedException e) {
@@ -67,10 +73,15 @@ public class DeviceEmulator extends Thread {  // upgrade later
         endTs = System.currentTimeMillis();
     }
 
+    private List<String> getTimeseries(DeviceId deviceId, List<String> keys) {
+        TimePageLink timePageLink = new TimePageLink(limit, startTs, endTs);
+        List<TsKvEntry> timeseries = restClient.getTimeseries(deviceId, keys, 0L, Aggregation.NONE, timePageLink);
+        return Converter.convertTsKvEntryListToSimpleStringList(timeseries, keys.size());
+    }
+
     private void compareTelemetry() { // upgrade
 
-        TimePageLink timePageLink = new TimePageLink(100, startTs, endTs);
-        cloudTelemetry = tp.convertTsKvEntryListToSimpleStringList(restClient.getTimeseries(tp.getDeviceDetails().getDeviceId(), tp.getTelemetryKeys(), 0L, Aggregation.NONE, timePageLink));
+        cloudTelemetry = getTimeseries(tp.getDeviceDetails().getDeviceId(), tp.getTelemetryKeys());
         System.out.println("Device telemetry");
         System.out.println(deviceTelemetry);
         System.out.println("Cloud telemetry");
