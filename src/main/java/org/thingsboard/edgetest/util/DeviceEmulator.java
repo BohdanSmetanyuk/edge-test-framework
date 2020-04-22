@@ -2,7 +2,6 @@ package org.thingsboard.edgetest.util;
 
 import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.edgetest.data.TelemetryProfile;
-import org.thingsboard.edgetest.util.Converter;
 import org.thingsboard.rest.client.RestClient;
 import org.thingsboard.server.common.data.id.DeviceId;
 import org.thingsboard.server.common.data.kv.Aggregation;
@@ -17,9 +16,9 @@ public class DeviceEmulator extends Thread {  // upgrade
 
     private TelemetryProfile tp;
     private Client client;
-    private RestClient restClient;
 
-    private long emulationTime;
+    private static RestClient restClient;
+    private static long emulationTime;
 
     private List<String> deviceTelemetry;
     private List<String> cloudTelemetry;
@@ -29,18 +28,16 @@ public class DeviceEmulator extends Thread {  // upgrade
     private Long endTs;
     private int limit;
 
-    public DeviceEmulator(TelemetryProfile tp, Client client, RestClient restClient, String hostname, long emulationTime) {  // emulationTime here?
+    public DeviceEmulator(TelemetryProfile tp, Client client) {
         super(tp.getDeviceDetails().getDeviceName() + " emulator");
         this.tp = tp;
         this.client = client;
-        this.restClient = restClient;
-        this.emulationTime = emulationTime;
 
         deviceTelemetry = new ArrayList<>();
         cloudTelemetry = new ArrayList<>();
         //edgeTelemetry = new ArrayList<>();
 
-        client.init(hostname, tp.getDeviceDetails().getAccessToken());
+        client.init(tp.getDeviceDetails().getAccessToken());
     }
 
     public void run() {
@@ -88,4 +85,10 @@ public class DeviceEmulator extends Thread {  // upgrade
         System.out.println(cloudTelemetry);
         System.out.println(deviceTelemetry.equals(cloudTelemetry));
     }
+
+    static public void setEmulator(RestClient restClient, long emulationTime) {
+        DeviceEmulator.restClient = restClient;
+        DeviceEmulator.emulationTime = emulationTime;
+    }
+
 }

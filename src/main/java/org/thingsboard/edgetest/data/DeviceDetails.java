@@ -3,6 +3,7 @@ package org.thingsboard.edgetest.data;
 import org.thingsboard.rest.client.RestClient;
 import org.thingsboard.server.common.data.id.DeviceId;
 
+
 public class DeviceDetails {
 
     private String deviceName;

@@ -1,4 +1,4 @@
-package org.thingsboard.edgetest.clients;
+package org.thingsboard.edgetest.clients.mqtt;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -8,12 +8,13 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.thingsboard.edgetest.clients.Client;
 
 
 // working better than http client (sometimes 1 sec break) + mqtt protocol is "lighter" than http
 @Component("mqtt")
 @Scope("prototype")
-public class MQTTClient extends Client{
+public class MQTTClient extends Client {
 
     private final static String PROTOCOL = "tcp";
     private final static String DEVICES_ME = "devices/me";
@@ -25,7 +26,7 @@ public class MQTTClient extends Client{
     private String port;
 
     @Override
-    public void init(String hostname, String token) {
+    public void init(String token) {
 
         topic = V1 + DEVICES_ME + TELEMETRY;
         if(hostname.contains("localhost")) {

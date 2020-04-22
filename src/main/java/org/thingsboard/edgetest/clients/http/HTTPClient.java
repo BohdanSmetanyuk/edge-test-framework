@@ -1,4 +1,4 @@
-package org.thingsboard.edgetest.clients;
+package org.thingsboard.edgetest.clients.http;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -7,12 +7,13 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.thingsboard.edgetest.clients.Client;
 
 import java.io.IOException;
 
 @Component("http")
 @Scope("prototype")
-public class HTTPClient extends Client{
+public class HTTPClient extends Client {
 
     private final static String PROTOCOL = "http";
     private final static String API = "/api/";
@@ -21,7 +22,7 @@ public class HTTPClient extends Client{
     private HttpPost request;
 
     @Override
-    public void init(String hostname, String token) {
+    public void init(String token) {
         httpClient = HttpClientBuilder.create().build();
         request = new HttpPost(PROTOCOL + hostname + API + V1 + token + TELEMETRY);
         connected = true;

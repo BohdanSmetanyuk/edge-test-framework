@@ -15,6 +15,8 @@ public class TestPath {
 
     public static void main(String[] args) throws IOException {
 
+        System.out.println(getDataDir());
+
         JsonNode jsonNode = readFileContentToJsonNode(getDevicesDir(), "devices.json");
         for(JsonNode node: jsonNode) {
             System.out.println(mapper.treeToValue(node.get("name"), String.class));
@@ -22,7 +24,7 @@ public class TestPath {
     }
 
     private static String getDataDir() {
-        return Paths.get("src\\main\\data").toFile().getAbsolutePath();
+        return Paths.get("src", "main", "data").toFile().getAbsolutePath();
     }
 
     private static Path getDevicesDir() {
@@ -30,7 +32,7 @@ public class TestPath {
     }
 
     private static String getSolutionName() {
-        return "test_solution";
+        return "edge_test_solution";
     }
 
     protected static JsonNode readFileContentToJsonNode(Path path, String fileName) throws IOException {

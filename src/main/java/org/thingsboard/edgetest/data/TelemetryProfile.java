@@ -28,13 +28,13 @@ public class TelemetryProfile {
         this.telemetry = telemetry;
     }
 
-    public static TelemetryProfile getTelemetryProfile(String deviceName, RestClient restClient, String profile, int publishFrequencyInMillis, JsonNode telemetryNode) throws IOException {
+    public static TelemetryProfile getTelemetryProfile(String deviceName, RestClient restClient, String profile, int publishFrequencyInMillis, JsonNode keysAndValuesNode) throws IOException {
         Map<String, HashMap<String, Integer>> keysAndValues = new HashMap<>();
-        for (JsonNode keyAndValues: getKeysAndValuesAsJsonNode(telemetryNode)) {
+        for (JsonNode keyAndValuesNode: keysAndValuesNode) {
             HashMap<String, Integer> minMaxValues = new HashMap<>();
-            String key = mapper.treeToValue(keyAndValues.get("key"), String.class);
-            int maxValue = mapper.treeToValue(keyAndValues.get("maxValue"), int.class);
-            int minValue = mapper.treeToValue(keyAndValues.get("minValue"), int.class);
+            String key = mapper.treeToValue(keyAndValuesNode.get("key"), String.class);
+            int maxValue = mapper.treeToValue(keyAndValuesNode.get("maxValue"), int.class);
+            int minValue = mapper.treeToValue(keyAndValuesNode.get("minValue"), int.class);
             minMaxValues.put("minValue", minValue);
             minMaxValues.put("maxValue", maxValue);
             keysAndValues.put(key, minMaxValues);
@@ -56,10 +56,6 @@ public class TelemetryProfile {
         }
         content.append("}");
         return content.toString();
-    }
-
-    public static JsonNode getKeysAndValuesAsJsonNode(JsonNode telemetryNode) throws IOException { // ???
-        return mapper.treeToValue(telemetryNode.get("telemetry"), JsonNode.class);
     }
 
     public DeviceDetails getDeviceDetails() {
