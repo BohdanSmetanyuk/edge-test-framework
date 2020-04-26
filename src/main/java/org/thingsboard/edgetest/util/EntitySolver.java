@@ -42,8 +42,8 @@ public class EntitySolver {
             edge.setName(mapper.treeToValue(edgeNode.get("name"), String.class));
             edge.setType(mapper.treeToValue(edgeNode.get("type"), String.class));
             edge.setLabel(mapper.treeToValue(edgeNode.get("label"), String.class));
-            edge.setType(mapper.treeToValue(edgeNode.get("routingKey"), String.class));
-            edge.setLabel(mapper.treeToValue(edgeNode.get("secret"), String.class));
+            edge.setRoutingKey(mapper.treeToValue(edgeNode.get("routingKey"), String.class));
+            edge.setSecret(mapper.treeToValue(edgeNode.get("secret"), String.class));
             restClient.saveEdge(edge);
         }
     }
