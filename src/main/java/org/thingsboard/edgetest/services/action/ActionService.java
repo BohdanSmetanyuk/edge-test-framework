@@ -12,31 +12,30 @@ abstract public class ActionService {
 
     @Value("${solution.name}")
     private String solutionName;
-    @Value("${host.name}")
-    protected String hostname;
 
-    @Value("${user.username}")
-    private String username;
-    @Value("${user.password}")
-    private String password;
+    @Value("${cloud.host.name}")
+    protected String cloudHostname;
 
-    private final static String REST_CLIENT_PROTOCOL = "http";
+    @Value("${cloud.user.username}")
+    private String cloudUsername;
+    @Value("${cloud.user.password}")
+    private String cloudPassword;
 
     protected Solution solution;
-    protected RestClient restClient;
+    protected RestClient restClientCloud;
 
     @PostConstruct
     private void construct() {
-        restClient = new RestClient(REST_CLIENT_PROTOCOL + hostname);
-        restClient.login(username, password);
+        restClientCloud = new RestClient("http" + cloudHostname);
+        restClientCloud.login(cloudUsername, cloudPassword);
         solution =  new AnnotationConfigApplicationContext("org.thingsboard.edgetest.solution").getBean(solutionName, Solution.class);
-        solution.initSolution(restClient);
+        solution.initSolution(restClientCloud);
     }
 
     abstract public void start();
 
     @PreDestroy
     private void destroy() {
-        restClient.logout();
+        restClientCloud.logout();
     }
 }

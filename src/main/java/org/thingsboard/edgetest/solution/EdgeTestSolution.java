@@ -27,18 +27,18 @@ public class EdgeTestSolution implements Solution {
     }
 
     @Override
-    public void install() { //
+    public void install() {
         try {
             entitySolver.installDevices();
-            //entitySolver.installEdges(restClient);
-            //entitySolver.assignDevicesToEdges(restClient);
+            entitySolver.installEdges();
+            entitySolver.assignDevicesToEdges();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
     @Override
-    public void uninstall() {  //
+    public void uninstall() {
 
         List<EdgeId> edgesDelete = new ArrayList<>();
         List<DeviceId> devicesDelete = new ArrayList<>();
@@ -63,7 +63,7 @@ public class EdgeTestSolution implements Solution {
     }
 
     @Override
-    public void emulate(String telemetrySendProtocol) {  //
+    public void emulate(String telemetrySendProtocol) {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext("org.thingsboard.edgetest.clients." + telemetrySendProtocol);
         for (TelemetryProfile tp:  entitySolver.initTelemetryProfiles()) {
             Client client = context.getBean(telemetrySendProtocol, Client.class);
