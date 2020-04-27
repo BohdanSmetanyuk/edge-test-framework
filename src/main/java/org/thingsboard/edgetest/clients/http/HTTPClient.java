@@ -26,7 +26,7 @@ public class HTTPClient extends Client {
         httpClient = HttpClientBuilder.create().build();
         request = new HttpPost(PROTOCOL + hostname + API + V1 + token + TELEMETRY);
         connected = true;
-        System.out.println("Client connected to server.");
+        logger.info("HTTP client connected to target");
     }
 
     @Override
@@ -36,7 +36,13 @@ public class HTTPClient extends Client {
             request.setEntity(new StringEntity(content, ContentType.APPLICATION_JSON));
             httpClient.execute(request);
         } catch (IOException ex) {
+            logger.error(ex.getMessage());
             ex.printStackTrace();
         }
+    }
+
+    @Override
+    public void disconnect() {
+        logger.info("HTTP client disconnected from target");
     }
 }

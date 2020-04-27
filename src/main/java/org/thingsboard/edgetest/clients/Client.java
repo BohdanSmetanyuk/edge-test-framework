@@ -1,9 +1,14 @@
 package org.thingsboard.edgetest.clients;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 abstract public class Client {
 
     final static protected String TELEMETRY = "/telemetry";
     final static protected String V1 = "v1/";
+
+    protected static final Logger logger = LogManager.getLogger(Client.class);
 
     protected static String hostname;
 
@@ -13,9 +18,7 @@ abstract public class Client {
 
     abstract public void publish(String content);
 
-    public void disconnect() {
-        System.out.println("Disconnect client from server.");
-    }
+    abstract public void disconnect();
 
     protected void isConnected() throws RuntimeException {
         if(!connected) {

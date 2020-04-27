@@ -31,11 +31,15 @@ public class EmulateService extends ActionService {
     @PostConstruct
     private void initEdgeRestClient() {
         restClientEdge = new RestClient("http" + edgeHostname);
+        logger.info("Rest client connected to edge on " + "http" + edgeHostname);
         restClientEdge.login(edgeUsername, edgePassword);
+        logger.info("Rest client successfully login with username: " + edgeUsername + " and password: " + edgePassword);
     }
 
     public void start() {
         Client.setClientHostname(cloudHostname);
+        logger.info("Emulation target: " + "http" + cloudHostname);
+        logger.info("Emulation time: " + emulationTime + " , telemetry send protocol: " + telemetrySendProtocol);
         DeviceEmulator.setEmulator(restClientCloud, restClientEdge, emulationTime);
         solution.emulate(telemetrySendProtocol);
     }
@@ -43,5 +47,8 @@ public class EmulateService extends ActionService {
     @PreDestroy
     private void logout() {
         restClientEdge.logout();
+        logger.info("Rest client successfully logout");
+        restClientEdge.close();
+        logger.info("Rest client successfully disconnected from edge");
     }
 }

@@ -1,5 +1,7 @@
 package org.thingsboard.edgetest.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.edgetest.data.TelemetryProfile;
 import org.thingsboard.rest.client.RestClient;
@@ -13,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DeviceEmulator extends Thread {  // target
+
+    private static final Logger logger = LogManager.getLogger(DeviceEmulator.class);
 
     private TelemetryProfile tp;
     private Client client;
@@ -42,12 +46,13 @@ public class DeviceEmulator extends Thread {  // target
     }
 
     public void run() {
-
         pushTelemetry();
         compareTelemetry();
     }
 
     private void pushTelemetry() {
+
+        logger.info("Starting push telemetry");
 
         limit = 0;
         startTs = System.currentTimeMillis();
@@ -69,6 +74,8 @@ public class DeviceEmulator extends Thread {  // target
         client.disconnect();
 
         endTs = System.currentTimeMillis();
+
+        logger.info("All telemetry pushed successfully");
     }
 
     private List<String> getCloudTimeseries(DeviceId deviceId, List<String> keys) {
@@ -85,16 +92,10 @@ public class DeviceEmulator extends Thread {  // target
     }
 
     private void compareTelemetry() {
-
+        logger.info("Starting compare telemetry");
         cloudTelemetry = getCloudTimeseries(tp.getDeviceDetails().getDeviceId(), tp.getTelemetryKeys());
         edgeTelemetry = getEdgeTimeseries(tp.getDeviceDetails().getDeviceName(), tp.getTelemetryKeys());
-        System.out.println("Device telemetry");
-        System.out.println(deviceTelemetry);
-        System.out.println("Cloud telemetry");
-        System.out.println(cloudTelemetry);
-        System.out.println("Edge telemetry");
-        System.out.println(edgeTelemetry);
-        System.out.println(deviceTelemetry.equals(cloudTelemetry) && cloudTelemetry.equals(edgeTelemetry));
+        logger.info(this.getName() + ": " + (deviceTelemetry.equals(cloudTelemetry) && cloudTelemetry.equals(edgeTelemetry) ? "all telemetry equals" : "telemetry not equals"));
     }
 
     static public void setEmulator(RestClient restClientCloud, RestClient restClientEdge, long emulationTime) {

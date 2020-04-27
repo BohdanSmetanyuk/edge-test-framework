@@ -47,7 +47,7 @@ public class MQTTClient extends Client {
             ex.printStackTrace();
         }
         connected = true;
-        System.out.println("Client connected to server.");
+        logger.info("MQTT client connected to target");
     }
 
     @Override
@@ -56,17 +56,19 @@ public class MQTTClient extends Client {
             isConnected();
             mqttClient.publish(topic,  new MqttMessage(content.getBytes()));
         } catch (MqttException ex) {
+            logger.error(ex.getMessage());
             ex.printStackTrace();
         }
     }
 
     @Override
     public void disconnect() {
-        super.disconnect();
         try {
             mqttClient.disconnect();
-        } catch (MqttException e) {
-            e.printStackTrace();
+        } catch (MqttException ex) {
+            logger.error(ex.getMessage());
+            ex.printStackTrace();
         }
+        logger.info("MQTT client disconnected from target");
     }
 }

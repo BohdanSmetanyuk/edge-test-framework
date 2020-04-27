@@ -2,6 +2,8 @@ package org.thingsboard.edgetest.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.thingsboard.edgetest.data.TelemetryProfile;
 import org.thingsboard.rest.client.RestClient;
 import org.thingsboard.server.common.data.Device;
@@ -16,6 +18,8 @@ import java.util.List;
 
 public class EntitySolver {
 
+    private static final Logger logger = LogManager.getLogger(EntitySolver.class);
+
     private RestClient restClient;
     private JsonSolver jsonSolver;
     private ObjectMapper mapper;
@@ -27,6 +31,7 @@ public class EntitySolver {
     }
 
     public void installDevices() throws IOException {
+        logger.info("Starting install devices");
         for (JsonNode deviceNode : jsonSolver.getDevicesAsJsonNode()) {
             Device device = new Device();
             device.setName(mapper.treeToValue(deviceNode.get("name"), String.class));
@@ -34,9 +39,11 @@ public class EntitySolver {
             device.setLabel(mapper.treeToValue(deviceNode.get("label"), String.class));
             restClient.saveDevice(device);
         }
+        logger.info("All devices installed successfully");
     }
 
     public void installEdges() throws IOException{
+        logger.info("Starting install edges");
         for (JsonNode edgeNode: jsonSolver.getEdgesAsJsonNode()) {
             Edge edge = new Edge();
             edge.setName(mapper.treeToValue(edgeNode.get("name"), String.class));
@@ -46,9 +53,11 @@ public class EntitySolver {
             edge.setSecret(mapper.treeToValue(edgeNode.get("secret"), String.class));
             restClient.saveEdge(edge);
         }
+        logger.info("All edges installed successfully");
     }
 
     public void assignDevicesToEdges() throws IOException{
+        logger.info("Starting assign devices to edges");
         for (JsonNode edgeNode : jsonSolver.getEdgesAsJsonNode()) {
             String edgeName = mapper.treeToValue(edgeNode.get("name"), String.class);
             for(JsonNode deviceNode: jsonSolver.getDevicesAsJsonNode()) {
@@ -59,9 +68,11 @@ public class EntitySolver {
                 }
             }
         }
+        logger.info("All devices successfully assigned to edges");
     }
 
     public List<TelemetryProfile> initTelemetryProfiles(){
+        logger.info("Starting initialize telemetry profiles");
         List<TelemetryProfile> telemetryProfileList = new ArrayList<>();
         try {
             for (JsonNode deviceNode : jsonSolver.getDevicesAsJsonNode()) {
@@ -82,22 +93,28 @@ public class EntitySolver {
                 }
             }
         } catch (IOException ex) {
+            logger.error(ex.getMessage());
             ex.printStackTrace();
         }
+        logger.info("Telemetry profiles initialized successfully");
         return telemetryProfileList;
     }
 
     public void deleteDevices(List<DeviceId> deviceIds) {
+        logger.info("Starting uninstall devices");
         for(DeviceId deviceId: deviceIds) {
             restClient.unassignDeviceFromEdge(deviceId);
             restClient.deleteDevice(deviceId);
         }
+        logger.info("All devices successfully unassigned from edges and uninstalled");
     }
 
     public void deleteEdges(List<EdgeId> edgeIds) {
+        logger.info("Starting uninstall edges");
         for(EdgeId edgeId: edgeIds) {
             restClient.deleteEdge(edgeId);
         }
+        logger.info("All edges successfully uninstalled");
     }
 
     public List<String> getEdgeTypes() throws IOException{
