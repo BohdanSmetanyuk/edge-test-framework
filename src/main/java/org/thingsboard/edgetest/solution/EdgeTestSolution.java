@@ -3,10 +3,8 @@ package org.thingsboard.edgetest.solution;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
 import org.thingsboard.edgetest.util.DeviceEmulator;
-import org.thingsboard.edgetest.data.TelemetryProfile;
+import org.thingsboard.edgetest.data.common.TelemetryProfile;
 import org.thingsboard.edgetest.clients.Client;
-import org.thingsboard.edgetest.util.EntitySolver;
-import org.thingsboard.rest.client.RestClient;
 import org.thingsboard.server.common.data.Device;
 import org.thingsboard.server.common.data.edge.Edge;
 import org.thingsboard.server.common.data.id.DeviceId;
@@ -17,13 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component("edge-test-solution")
-public class EdgeTestSolution implements Solution {
-
-    private EntitySolver entitySolver;
+public class EdgeTestSolution extends BaseSolution implements Solution {
 
     @Override
-    public void initSolution(RestClient restClient) {
-        entitySolver = new EntitySolver(restClient, "edge_test_solution");
+    String getSolutionDir() {
+        return "edge_test_solution";
     }
 
     @Override
@@ -58,6 +54,7 @@ public class EdgeTestSolution implements Solution {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+        entitySolver.unassignDevicesFromEdges(devicesDelete);
         entitySolver.deleteDevices(devicesDelete);
         entitySolver.deleteEdges(edgesDelete);
     }

@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.thingsboard.edgetest.data.TelemetryProfile;
+import org.thingsboard.edgetest.data.common.DeviceDetails;
+import org.thingsboard.edgetest.data.common.TelemetryProfile;
 import org.thingsboard.rest.client.RestClient;
 import org.thingsboard.server.common.data.Device;
 import org.thingsboard.server.common.data.edge.Edge;
@@ -77,6 +78,7 @@ public class EntitySolver {
         try {
             for (JsonNode deviceNode : jsonSolver.getDevicesAsJsonNode()) {
                 String deviceName = mapper.treeToValue(deviceNode.get("name"), String.class);
+                DeviceDetails deviceDetails = getDeviceDetails(deviceName);
                 String profile = mapper.treeToValue(deviceNode.get("profile"), String.class);
                 boolean telemetryFound = false;
                 for (JsonNode telemetryNode : jsonSolver.getTelemetryAsJsonNode()) {
@@ -84,7 +86,7 @@ public class EntitySolver {
                         telemetryFound = true;
                         int publishFrequencyInMillis = mapper.treeToValue(telemetryNode.get("publishFrequencyInMillis"), int.class);
                         JsonNode keysAndValuesNode = mapper.treeToValue(telemetryNode.get("telemetry"), JsonNode.class);
-                        TelemetryProfile telemetryProfile = TelemetryProfile.getTelemetryProfile(deviceName, restClient, profile, publishFrequencyInMillis, keysAndValuesNode);
+                        TelemetryProfile telemetryProfile = TelemetryProfile.getTelemetryProfile(deviceDetails, profile, publishFrequencyInMillis, keysAndValuesNode);
                         telemetryProfileList.add(telemetryProfile);
                     }
                 }
@@ -100,13 +102,26 @@ public class EntitySolver {
         return telemetryProfileList;
     }
 
+    private DeviceDetails getDeviceDetails(String deviceName) {
+        DeviceId deviceId = restClient.getTenantDevice(deviceName).get().getId();
+        String accessToken = restClient.getDeviceCredentialsByDeviceId(deviceId).get().getCredentialsId();
+        return new DeviceDetails(deviceName, deviceId, accessToken);
+    }
+
+    public void unassignDevicesFromEdges(List<DeviceId> deviceIds) {
+        logger.info("Starting unassign devices from edges");
+        for(DeviceId deviceId: deviceIds) {
+            restClient.unassignDeviceFromEdge(deviceId);
+        }
+        logger.info("All devices successfully unassigned from edges");
+    }
+
     public void deleteDevices(List<DeviceId> deviceIds) {
         logger.info("Starting uninstall devices");
         for(DeviceId deviceId: deviceIds) {
-            restClient.unassignDeviceFromEdge(deviceId);
             restClient.deleteDevice(deviceId);
         }
-        logger.info("All devices successfully unassigned from edges and uninstalled");
+        logger.info("All devices successfully uninstalled");
     }
 
     public void deleteEdges(List<EdgeId> edgeIds) {
@@ -117,7 +132,7 @@ public class EntitySolver {
         logger.info("All edges successfully uninstalled");
     }
 
-    public List<String> getEdgeTypes() throws IOException{
+    public List<String> getEdgeTypes() throws IOException{ //
         List<String> edgeTypes = new ArrayList<>();
         for (JsonNode edgeNode: jsonSolver.getEdgesAsJsonNode()) {
             edgeTypes.add(mapper.treeToValue(edgeNode.get("type"), String.class));
@@ -125,7 +140,7 @@ public class EntitySolver {
         return edgeTypes;
     }
 
-    public List<String> getDeviceTypes() throws IOException{
+    public List<String> getDeviceTypes() throws IOException{ //
         List<String> deviceTypes = new ArrayList<>();
         for (JsonNode deviceNode: jsonSolver.getDevicesAsJsonNode()) {
             deviceTypes.add(mapper.treeToValue(deviceNode.get("type"), String.class));
@@ -139,6 +154,10 @@ public class EntitySolver {
 
     public List<Device> getEdgeDevices(Edge edge, String deviceType, int deviceTypesSize) { //
         return restClient.getEdgeDevices(edge.getId(), deviceType, new TextPageLink(deviceTypesSize)).getData();
+    }
+
+    public List<Device> getTenantDevices(String deviceType, int deviceTypesSize) { //
+        return restClient.getTenantDevices(deviceType, new TextPageLink(deviceTypesSize)).getData();
     }
 
 }

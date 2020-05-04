@@ -3,10 +3,9 @@ package org.thingsboard.edgetest.util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.thingsboard.edgetest.clients.Client;
-import org.thingsboard.edgetest.data.TelemetryProfile;
+import org.thingsboard.edgetest.data.common.TelemetryProfile;
 import org.thingsboard.rest.client.RestClient;
 import org.thingsboard.server.common.data.Device;
-import org.thingsboard.server.common.data.id.DeviceId;
 import org.thingsboard.server.common.data.kv.Aggregation;
 import org.thingsboard.server.common.data.kv.TsKvEntry;
 import org.thingsboard.server.common.data.page.TimePageLink;
@@ -14,7 +13,7 @@ import org.thingsboard.server.common.data.page.TimePageLink;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeviceEmulator extends Thread {  // target
+public class DeviceEmulator extends Thread {
 
     private static final Logger logger = LogManager.getLogger(DeviceEmulator.class);
 
@@ -23,6 +22,7 @@ public class DeviceEmulator extends Thread {  // target
 
     private static RestClient restClientCloud;
     private static RestClient restClientEdge;
+    private static String targetHostName;
     private static long emulationTime;
 
     private List<String> deviceTelemetry;
@@ -42,7 +42,7 @@ public class DeviceEmulator extends Thread {  // target
         cloudTelemetry = new ArrayList<>();
         edgeTelemetry = new ArrayList<>();
 
-        client.init(tp.getDeviceDetails().getAccessToken());
+        client.init(targetHostName, tp.getDeviceDetails().getAccessToken());
     }
 
     public void run() {
@@ -78,9 +78,10 @@ public class DeviceEmulator extends Thread {  // target
         logger.info("All telemetry pushed successfully");
     }
 
-    private List<String> getCloudTimeseries(DeviceId deviceId, List<String> keys) {
+    private List<String> getCloudTimeseries(String deviceName, List<String> keys) {
         TimePageLink timePageLink = new TimePageLink(limit, startTs, endTs);
-        List<TsKvEntry> timeseries = restClientCloud.getTimeseries(deviceId, keys, 0L, Aggregation.NONE, timePageLink);
+        Device device = restClientCloud.getTenantDevice(deviceName).get();
+        List<TsKvEntry> timeseries = restClientCloud.getTimeseries(device.getId(), keys, 0L, Aggregation.NONE, timePageLink);
         return Converter.convertTsKvEntryListToSimpleStringList(timeseries, keys.size());
     }
 
@@ -93,14 +94,15 @@ public class DeviceEmulator extends Thread {  // target
 
     private void compareTelemetry() {
         logger.info("Starting compare telemetry");
-        cloudTelemetry = getCloudTimeseries(tp.getDeviceDetails().getDeviceId(), tp.getTelemetryKeys());
+        cloudTelemetry = getCloudTimeseries(tp.getDeviceDetails().getDeviceName(), tp.getTelemetryKeys());
         edgeTelemetry = getEdgeTimeseries(tp.getDeviceDetails().getDeviceName(), tp.getTelemetryKeys());
         logger.info(this.getName() + ": " + (deviceTelemetry.equals(cloudTelemetry) && cloudTelemetry.equals(edgeTelemetry) ? "all telemetry equals" : "telemetry not equals"));
     }
 
-    static public void setEmulator(RestClient restClientCloud, RestClient restClientEdge, long emulationTime) {
+    static public void setEmulator(RestClient restClientCloud, RestClient restClientEdge, String targetHostName, long emulationTime) {
         DeviceEmulator.restClientCloud = restClientCloud;
         DeviceEmulator.restClientEdge = restClientEdge;
+        DeviceEmulator.targetHostName = targetHostName;
         DeviceEmulator.emulationTime = emulationTime;
     }
 

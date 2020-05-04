@@ -22,7 +22,7 @@ public class HTTPClient extends Client {
     private HttpPost request;
 
     @Override
-    public void init(String token) {
+    public void init(String hostname, String token) {
         httpClient = HttpClientBuilder.create().build();
         request = new HttpPost(PROTOCOL + hostname + API + V1 + token + TELEMETRY);
         connected = true;

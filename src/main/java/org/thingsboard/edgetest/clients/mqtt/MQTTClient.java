@@ -26,7 +26,7 @@ public class MQTTClient extends Client {
     private String port;
 
     @Override
-    public void init(String token) {
+    public void init(String hostname, String token) {
 
         topic = V1 + DEVICES_ME + TELEMETRY;
         if(hostname.contains("localhost")) {

@@ -1,8 +1,8 @@
-package org.thingsboard.edgetest.data;
+package org.thingsboard.edgetest.data.common;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.thingsboard.rest.client.RestClient;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,8 +16,10 @@ public class TelemetryProfile {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
+    @Getter
     private DeviceDetails deviceDetails;
     private String profile;
+    @Getter
     private int publishFrequencyInMillis;
     private Map<String, HashMap<String, Integer>> telemetry;
 
@@ -28,7 +30,7 @@ public class TelemetryProfile {
         this.telemetry = telemetry;
     }
 
-    public static TelemetryProfile getTelemetryProfile(String deviceName, RestClient restClient, String profile, int publishFrequencyInMillis, JsonNode keysAndValuesNode) throws IOException {
+    public static TelemetryProfile getTelemetryProfile(DeviceDetails deviceDetails, String profile, int publishFrequencyInMillis, JsonNode keysAndValuesNode) throws IOException {
         Map<String, HashMap<String, Integer>> keysAndValues = new HashMap<>();
         for (JsonNode keyAndValuesNode: keysAndValuesNode) {
             HashMap<String, Integer> minMaxValues = new HashMap<>();
@@ -39,7 +41,7 @@ public class TelemetryProfile {
             minMaxValues.put("maxValue", maxValue);
             keysAndValues.put(key, minMaxValues);
         }
-        return new TelemetryProfile(new DeviceDetails(deviceName, restClient), profile, publishFrequencyInMillis, keysAndValues);
+        return new TelemetryProfile(deviceDetails, profile, publishFrequencyInMillis, keysAndValues);
     }
 
     public String generateContent() {
@@ -56,14 +58,6 @@ public class TelemetryProfile {
         }
         content.append("}");
         return content.toString();
-    }
-
-    public DeviceDetails getDeviceDetails() {
-        return deviceDetails;
-    }
-
-    public int getPublishFrequencyInMillis() {
-        return publishFrequencyInMillis;
     }
 
     public List<String> getTelemetryKeys() {

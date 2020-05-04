@@ -10,11 +10,9 @@ abstract public class Client {
 
     protected static final Logger logger = LogManager.getLogger(Client.class);
 
-    protected static String hostname;
-
     protected boolean connected = false;
 
-    abstract public void init(String token);
+    abstract public void init(String hostname, String token);
 
     abstract public void publish(String content);
 
@@ -25,9 +23,4 @@ abstract public class Client {
             throw new RuntimeException("Client uninialized!\nCall init method.");
         }
     }
-
-    public static void setClientHostname(String hostname) {
-        Client.hostname = hostname;
-    }
-
 }
