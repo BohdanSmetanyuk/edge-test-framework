@@ -25,6 +25,7 @@ public class EdgeSolution extends BaseSolution implements Solution {
         try {
             entitySolver.installDevices();
         } catch (IOException ex) {
+            logger.error(ex.getMessage());
             ex.printStackTrace();
         }
     }
@@ -34,7 +35,14 @@ public class EdgeSolution extends BaseSolution implements Solution {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext("org.thingsboard.edgetest.clients." + telemetrySendProtocol);
         for (TelemetryProfile tp:  entitySolver.initTelemetryProfiles()) {
             Client client = context.getBean(telemetrySendProtocol, Client.class);
-            new DeviceEmulator(tp, client).start();
+            DeviceEmulator deviceEmulator = new DeviceEmulator(tp, client);
+            deviceEmulator.start();
+            try {
+                deviceEmulator.join();
+            } catch (InterruptedException ex) {
+                logger.error(ex.getMessage());
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -49,6 +57,7 @@ public class EdgeSolution extends BaseSolution implements Solution {
                 }
             }
         } catch (IOException ex) {
+            logger.error(ex.getMessage());
             ex.printStackTrace();
         }
         entitySolver.deleteDevices(devicesDelete);
