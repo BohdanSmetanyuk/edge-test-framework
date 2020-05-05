@@ -64,16 +64,20 @@ public class EdgeTestSolution extends BaseSolution implements Solution {
     @Override
     public void emulate(String telemetrySendProtocol) {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext("org.thingsboard.edgetest.clients." + telemetrySendProtocol);
+        List<DeviceEmulator> deviceEmulators = new ArrayList<>();
         for (TelemetryProfile tp:  entitySolver.initTelemetryProfiles()) {
             Client client = context.getBean(telemetrySendProtocol, Client.class);
             DeviceEmulator deviceEmulator = new DeviceEmulator(tp, client);
+            deviceEmulators.add(deviceEmulator);
             deviceEmulator.start();
-            try {
+        }
+        try {
+            for(DeviceEmulator deviceEmulator: deviceEmulators) {
                 deviceEmulator.join();
-            } catch (InterruptedException ex) {
-                logger.error(ex.getMessage());
-                ex.printStackTrace();
             }
+        } catch (InterruptedException ex) {
+            logger.error(ex.getMessage());
+            ex.printStackTrace();
         }
     }
 

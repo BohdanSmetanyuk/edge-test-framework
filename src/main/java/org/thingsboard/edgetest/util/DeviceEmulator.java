@@ -41,8 +41,6 @@ public class DeviceEmulator extends Thread {
         deviceTelemetry = new ArrayList<>();
         cloudTelemetry = new ArrayList<>();
         edgeTelemetry = new ArrayList<>();
-
-        client.init(targetHostName, tp.getDeviceDetails().getAccessToken());
     }
 
     public void run() {
@@ -52,6 +50,7 @@ public class DeviceEmulator extends Thread {
 
     private void pushTelemetry() {
 
+        client.init(targetHostName, tp.getDeviceDetails().getAccessToken());
         logger.info("Starting push telemetry");
 
         limit = 0;
@@ -78,24 +77,17 @@ public class DeviceEmulator extends Thread {
         logger.info("All telemetry pushed successfully");
     }
 
-    private List<String> getCloudTimeseries(String deviceName, List<String> keys) {
+    private List<String> getTimeseries(RestClient restClient, String deviceName, List<String> keys) {
         TimePageLink timePageLink = new TimePageLink(limit, startTs, endTs);
-        Device device = restClientCloud.getTenantDevice(deviceName).get();
-        List<TsKvEntry> timeseries = restClientCloud.getTimeseries(device.getId(), keys, 0L, Aggregation.NONE, timePageLink);
-        return Converter.convertTsKvEntryListToSimpleStringList(timeseries, keys.size());
-    }
-
-    private List<String> getEdgeTimeseries(String deviceName, List<String> keys) {
-        TimePageLink timePageLink = new TimePageLink(limit, startTs, endTs);
-        Device device = restClientEdge.getTenantDevice(deviceName).get();
-        List<TsKvEntry> timeseries = restClientEdge.getTimeseries(device.getId(), keys, 0L, Aggregation.NONE, timePageLink);
+        Device device = restClient.getTenantDevice(deviceName).get();
+        List<TsKvEntry> timeseries = restClient.getTimeseries(device.getId(), keys, 0L, Aggregation.NONE, timePageLink);
         return Converter.convertTsKvEntryListToSimpleStringList(timeseries, keys.size());
     }
 
     private void compareTelemetry() {
         logger.info("Starting compare telemetry");
-        cloudTelemetry = getCloudTimeseries(tp.getDeviceDetails().getDeviceName(), tp.getTelemetryKeys());
-        edgeTelemetry = getEdgeTimeseries(tp.getDeviceDetails().getDeviceName(), tp.getTelemetryKeys());
+        cloudTelemetry = getTimeseries(restClientCloud, tp.getDeviceDetails().getDeviceName(), tp.getTelemetryKeys());
+        edgeTelemetry = getTimeseries(restClientEdge, tp.getDeviceDetails().getDeviceName(), tp.getTelemetryKeys());
         logger.info(this.getName() + ": " + (deviceTelemetry.equals(cloudTelemetry) && cloudTelemetry.equals(edgeTelemetry) ? "all telemetry equals" : "telemetry not equals"));
     }
 
