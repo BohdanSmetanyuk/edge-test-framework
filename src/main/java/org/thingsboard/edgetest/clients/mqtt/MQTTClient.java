@@ -19,11 +19,10 @@ public class MQTTClient extends Client {
     private final static String PROTOCOL = "tcp";
     private final static String DEVICES_ME = "devices/me";
 
+    private static String port;
+
     private String topic;
     private MqttClient mqttClient;
-
-    @Value("${mqtt.port}")
-    private String port;
 
     @Override
     public void init(String hostname, String token) {
@@ -32,10 +31,13 @@ public class MQTTClient extends Client {
         if(hostname.contains("localhost")) {
             hostname = hostname.substring(0, 12);
         }
+        if(port==null) {
+            setMqttPort("1883"); // standart mqtt port
+        }
         String broker = PROTOCOL + hostname + ":" + port;
 
         try {
-            mqttClient = new MqttClient(broker, "EdgeTestMQTTClient", new MemoryPersistence());   // string value
+            mqttClient = new MqttClient(broker, "MQTTClient", new MemoryPersistence());   // string value
 
             MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
             mqttConnectOptions.setCleanSession(true);   // true or false
@@ -47,7 +49,15 @@ public class MQTTClient extends Client {
             ex.printStackTrace();
         }
         connected = true;
-        logger.info("MQTT client connected to target");
+        logger.info("MQTT client connected to target. MQTT port: " + port);
+    }
+
+    public static void setMqttPort(String port) {
+        MQTTClient.port = port;
+    }
+
+    public static String getMqttPort() {
+        return port;
     }
 
     @Override

@@ -35,13 +35,13 @@ public class EmulateService extends ActionService {
         }
         logger.info("Emulation target: " + "http" + targetHostName);
         logger.info("Emulation time: " + emulationDetails.getEmulationTime() + " , telemetry send protocol: " + emulationDetails.getTelemetrySendProtocol());
-        DeviceEmulator.setEmulator(cloudHost.getRestClient(), edgeHost.getRestClient(), targetHostName, emulationDetails.getEmulationTime());
+        DeviceEmulator.setEmulator(cloudHost.getRestClient(), edgeHost.getRestClient(), targetHostName, emulationDetails);
         solution.initSolution(targetRestClient);
         logger.info("Solution " + solutionName + " initialized");
         inited = true;
     }
 
     public void start() {
-        solution.emulate(emulationDetails.getTelemetrySendProtocol());
+        solution.emulate();
     }
 }

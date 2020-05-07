@@ -6,7 +6,7 @@ public interface Solution {
 
     void install();
 
-    void emulate(String telemetrySendProtocol);
+    void emulate();
 
     void uninstall();
 

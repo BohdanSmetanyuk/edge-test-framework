@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
+import org.thingsboard.edgetest.clients.mqtt.MQTTClient;
 import org.thingsboard.edgetest.data.emulation.EmulationDetails;
 import org.thingsboard.edgetest.data.host.HostDetails;
 import org.thingsboard.edgetest.data.host.cloud.CloudDetails;
@@ -84,6 +85,15 @@ public class ApplicationConfig implements ApplicationListener<ContextRefreshedEv
     }
 
     public EmulationDetails getEmulationDetails() {
-        return new EmulationDetails(params.get("telemetry.send.protocol"), Long.parseLong(params.get("emulation.time")));
+        EmulationDetails emulationDetails = new EmulationDetails(params.get("telemetry.send.protocol"), Long.parseLong(params.get("emulation.time")));
+        if (params.containsKey("mqtt.port")) {
+            emulationDetails.setMqttPort(params.get("mqtt.port"));
+        }
+        if(emulationDetails.getTelemetrySendProtocol().equals("mqtt") && emulationDetails.getMqttPort()!=null) {
+            if(MQTTClient.getMqttPort()==null) {
+                MQTTClient.setMqttPort(emulationDetails.getMqttPort());
+            }
+        }
+        return emulationDetails;
     }
 }

@@ -2,8 +2,11 @@ package org.thingsboard.edgetest.util;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.thingsboard.edgetest.clients.Client;
+import org.thingsboard.edgetest.clients.mqtt.MQTTClient;
 import org.thingsboard.edgetest.data.common.TelemetryProfile;
+import org.thingsboard.edgetest.data.emulation.EmulationDetails;
 import org.thingsboard.rest.client.RestClient;
 import org.thingsboard.server.common.data.Device;
 import org.thingsboard.server.common.data.kv.Aggregation;
@@ -18,12 +21,13 @@ public class DeviceEmulator extends Thread {
     private static final Logger logger = LogManager.getLogger(DeviceEmulator.class);
 
     private TelemetryProfile tp;
-    private Client client;
+
+    private static AnnotationConfigApplicationContext context;
 
     private static RestClient restClientCloud;
     private static RestClient restClientEdge;
     private static String targetHostName;
-    private static long emulationTime;
+    private static EmulationDetails emulationDetails;
 
     private List<String> deviceTelemetry;
     private List<String> cloudTelemetry;
@@ -33,10 +37,9 @@ public class DeviceEmulator extends Thread {
     private Long endTs;
     private int limit;
 
-    public DeviceEmulator(TelemetryProfile tp, Client client) {
+    public DeviceEmulator(TelemetryProfile tp) {
         super(tp.getDeviceDetails().getDeviceName() + " emulator");
         this.tp = tp;
-        this.client = client;
 
         deviceTelemetry = new ArrayList<>();
         cloudTelemetry = new ArrayList<>();
@@ -50,13 +53,14 @@ public class DeviceEmulator extends Thread {
 
     private void pushTelemetry() {
 
+        Client client = context.getBean(emulationDetails.getTelemetrySendProtocol(), Client.class);
         client.init(targetHostName, tp.getDeviceDetails().getAccessToken());
         logger.info("Starting push telemetry");
 
         limit = 0;
         startTs = System.currentTimeMillis();
 
-        long breakTime = System.currentTimeMillis()+emulationTime;
+        long breakTime = System.currentTimeMillis()+emulationDetails.getEmulationTime();
 
         while(System.currentTimeMillis()<breakTime) {
             String content = tp.generateContent();
@@ -91,11 +95,12 @@ public class DeviceEmulator extends Thread {
         logger.info(this.getName() + ": " + (deviceTelemetry.equals(cloudTelemetry) && cloudTelemetry.equals(edgeTelemetry) ? "all telemetry equals" : "telemetry not equals"));
     }
 
-    static public void setEmulator(RestClient restClientCloud, RestClient restClientEdge, String targetHostName, long emulationTime) {
+    static public void setEmulator(RestClient restClientCloud, RestClient restClientEdge, String targetHostName, EmulationDetails emulationDetails) {
         DeviceEmulator.restClientCloud = restClientCloud;
         DeviceEmulator.restClientEdge = restClientEdge;
         DeviceEmulator.targetHostName = targetHostName;
-        DeviceEmulator.emulationTime = emulationTime;
+        DeviceEmulator.emulationDetails = emulationDetails;
+        DeviceEmulator.context = new AnnotationConfigApplicationContext("org.thingsboard.edgetest.clients." + emulationDetails.getTelemetrySendProtocol());
     }
 
 }
