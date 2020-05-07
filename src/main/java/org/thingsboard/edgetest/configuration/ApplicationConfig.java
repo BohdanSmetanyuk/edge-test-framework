@@ -4,8 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.stereotype.Component;
 import org.thingsboard.edgetest.clients.mqtt.MQTTClient;
 import org.thingsboard.edgetest.data.emulation.EmulationDetails;
 import org.thingsboard.edgetest.data.host.HostDetails;
@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
+@Configuration
 public class ApplicationConfig implements ApplicationListener<ContextRefreshedEvent> {
 
     @Value("${configuration}")
@@ -29,6 +29,7 @@ public class ApplicationConfig implements ApplicationListener<ContextRefreshedEv
     private static final Logger logger = LogManager.getLogger(ApplicationConfig.class);
 
     private Map<String, String> params;
+    private String description;
 
     @PostConstruct
     private void construct() {
@@ -37,6 +38,7 @@ public class ApplicationConfig implements ApplicationListener<ContextRefreshedEv
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
+        logger.info("Initializing configuration");
         String[] keyAndValue;
         try {
             File file = new File(configuration);
@@ -48,14 +50,31 @@ public class ApplicationConfig implements ApplicationListener<ContextRefreshedEv
                     throw new RuntimeException("Illegal configuration file\nPlease rewrite your .conf file in next form: key=value...");
                 }
                 keyAndValue = line.split("=");
-                params.put(keyAndValue[0], keyAndValue[1]);
+                if(keyAndValue[0].equals("description")) {
+                    description = keyAndValue[1];
+                } else {
+                    params.put(keyAndValue[0], keyAndValue[1]);
+                }
                 line = bufferedReader.readLine();
             }
         } catch (IOException ex) {
             logger.error(ex.getMessage());
             ex.printStackTrace();
         }
-        logger.info("Configuration params:\n" + params); //
+        viewConfigurationParams();
+        logger.info("Configuration successfully initialized");
+    }
+
+    private void viewConfigurationParams() {
+        logger.info("Configuration params:\n" + params);
+    }
+
+    public void getDescription() {
+        if(description==null) {
+            logger.info("No description");
+        } else {
+            logger.info("Description:\n" + description);
+        }
     }
 
     public String getValue(String key) throws RuntimeException{

@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.thingsboard.edgetest.clients.Client;
-import org.thingsboard.edgetest.clients.mqtt.MQTTClient;
 import org.thingsboard.edgetest.data.common.TelemetryProfile;
 import org.thingsboard.edgetest.data.emulation.EmulationDetails;
 import org.thingsboard.rest.client.RestClient;

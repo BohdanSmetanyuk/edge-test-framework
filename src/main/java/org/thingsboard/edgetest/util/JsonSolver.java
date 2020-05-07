@@ -37,7 +37,7 @@ public class JsonSolver {
     }
 
     private String getDataDir() {
-        return Paths.get("src", "main", "data").toFile().getAbsolutePath();
+        return Paths.get("data").toFile().getAbsolutePath();
     }
 
     private Path getEntitiesDir() {

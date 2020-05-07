@@ -8,6 +8,8 @@ import org.thingsboard.edgetest.services.action.ActionService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.PostConstruct;
+
 @Service
 public class ApplicationService {
 
@@ -19,7 +21,13 @@ public class ApplicationService {
     private String action;
     private ActionService actionService;
 
+    @PostConstruct
+    private void construct() {
+        logger.info("Starting edge-test-framework");
+    }
+
     public void run() {
+        applicationConfig.getDescription();
         action = applicationConfig.getValue("action");
         logger.info("Preparing " + action + " application");
         actionService = new AnnotationConfigApplicationContext("org.thingsboard.edgetest.services.action." + action).getBean(action + "Service", ActionService.class);
@@ -27,6 +35,7 @@ public class ApplicationService {
         actionService.init(applicationConfig);
         actionService.start();
         logger.info("Successfully finished " + action + " application");
+        logger.info("Edge-test-framework successfully finished");
     }
 
 }
