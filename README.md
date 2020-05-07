@@ -10,66 +10,43 @@ Every solution supports three main actions:
 
 # Preparing your envinroment
 
-Edge test framework uses dependencies of org.thingsboard.common.data and org.thingsboard.rest-client 
-under version 2.5.1-SNAPSHOT.
-You can find these versions here https://github.com/BohdanSmetanyuk/thingsboard and install them to your local repository using [Maven](https://maven.apache.org/):
-
+Edge-test-framework is running on Java 8. Follow this instructions to install OpenJDK 8:
 ```bash
-mvn clean install -DskipTests
+sudo apt update
+sudo apt install openjdk-8-jdk
+```
+You can check the installation using the following command:
+```bash
+java -version
+```
+Also you need to install [Subversion](http://subversion.apache.org) to get folder with configurations, data and executable .jar files.
+```bash
+sudo apt install subversion
 ```
 # Configure your application
 
 Before launching the application you should set up environment variables depending on framework's task.
 
 Here is an explanatory note on some of them:
-* `ACTION` can have three value - `install`, `emulate` or `uninstall`;
-* `SOLUTION_NAME` - this value is the same as the bean's name of solution class;
-* `TELEMETRY_SEND_PROTOCOL` - you can push telemetry using MQTT and HTTP protocol. Value will be according to choosen protocol - `mqtt` or `http`;
-* `EMULATION_TIME` - time of emulating process in milliseconds.
+* `action` can have three value - `install`, `emulate` or `uninstall`;
+* `target` ;
+* `solution.name` - this value is the same as the bean's name of solution class;
+* `telemetry.send.protocol` - you can push telemetry using MQTT and HTTP protocol. Value will be according to choosen protocol - `mqtt` or `http`;
+* `emulation.time` - time of emulating process in milliseconds.
 
-# Configuration examples
-## installation
+You can find all possible configurations in `configuration` folder. If you need more information about configuration, you can find it in `description` field in every .conf file. 
 
-* ACTION=install
-* SOLUTION_NAME=edge-test-solution
-* CLOUD_HOST_NAME=://localhost:8080
-* CLOUD_USER_USERNAME=tenant@thingsboard.org
-* CLOUD_USER_PASSWORD=tenant
+# Run application
 
-## emulation
-
-#### http
-
-* ACTION=emulate
-* SOLUTION_NAME=edge-test-solution
-* CLOUD_HOST_NAME=://localhost:8080
-* CLOUD_USER_USERNAME=tenant@thingsboard.org
-* CLOUD_USER_PASSWORD=tenant
-* EDGE_HOST_NAME=://localhost:8090
-* EDGE_USER_USERNAME=tenant@thingsboard.org
-* EDGE_USER_PASSWORD=tenant
-* TELEMETRY_SEND_PROTOCOL=http
-* EMULATION_TIME=10000
-
-#### mqtt 
-
-* ACTION=emulate;
-* SOLUTION_NAME=edge-test-solution
-* CLOUD_HOST_NAME=://localhost:8080
-* CLOUD_USER_USERNAME=tenant@thingsboard.org
-* CLOUD_USER_PASSWORD=tenant
-* EDGE_HOST_NAME=://localhost:8090
-* EDGE_USER_USERNAME=tenant@thingsboard.org
-* EDGE_USER_PASSWORD=tenant
-* TELEMETRY_SEND_PROTOCOL=mqtt
-* MQTT_PORT=1883
-* EMULATION_TIME=10000
-
-## uninstallation
-
-* ACTION=uninstall
-* SOLUTION_NAME=edge-test-solution
-* CLOUD_HOST_NAME=://localhost:8080
-* CLOUD_USER_USERNAME=tenant@thingsboard.org
-* CLOUD_USER_PASSWORD=tenant
-
+Get folder with latest release
+```bash
+svn export https://github.com/BohdanSmetanyuk/edge-test-framework/trunk/release/release-1.0
+```
+Move inside that directory
+```bash
+cd release-1.0
+```
+Choose configuration and execute command
+```bash
+java -jar edge-test-framework.jar --configuration=configuration/$FILE_NAME.conf
+```
