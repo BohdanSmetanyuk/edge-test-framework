@@ -7,6 +7,13 @@
     <groupId>org.thingsboard</groupId>
     <artifactId>edge-test-framework</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.0.0.RELEASE</version>
+    </parent>
 
     <properties>
 <!--        <thingsboard.version>2.5.0-SNAPSHOT</thingsboard.version>-->
@@ -40,11 +47,6 @@
             <version>4.5.12</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-        <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
             <version>1.3.2</version>
@@ -67,6 +69,11 @@
             <version>${log4j.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
     </dependencies>
 
     <!--<repositories>
@@ -75,6 +82,18 @@
             <url>https://repo.thingsboard.io/artifactory/libs-release-public</url>
         </repository>
     </repositories>-->
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>org.thingsboard.edgetest.RunApplication</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 
 </project>

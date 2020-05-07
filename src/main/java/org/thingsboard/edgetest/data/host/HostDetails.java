@@ -15,4 +15,12 @@ abstract public class HostDetails {
     }
 
     abstract public String getHostName();
+
+    abstract public String getUserPassword();
+
+    abstract public String getUserUsername();
+
+    abstract public void init(HostDetails hostDetails);
+
+    abstract protected void initRestClient();
 }

@@ -1,29 +1,27 @@
 package org.thingsboard.edgetest.services.action.emulate;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
-import org.thingsboard.edgetest.data.host.HostDetails;
+import org.thingsboard.edgetest.configuration.ApplicationConfig;
+import org.thingsboard.edgetest.data.emulation.EmulationDetails;
+import org.thingsboard.edgetest.data.host.cloud.CloudDetails;
+import org.thingsboard.edgetest.data.host.edge.EdgeDetails;
 import org.thingsboard.edgetest.services.action.ActionService;
 import org.thingsboard.edgetest.util.DeviceEmulator;
 import org.thingsboard.rest.client.RestClient;
 
-import javax.annotation.PostConstruct;
-
 @Service
 public class EmulateService extends ActionService {
 
-    @Value("${telemetry.send.protocol}")
-    private String telemetrySendProtocol;
+    private CloudDetails cloudHost;
+    private EdgeDetails edgeHost;
+    private EmulationDetails emulationDetails;
 
-    @Value("${emulation.time}")
-    private long emulationTime;
-
-    @PostConstruct
-    private void construct() {
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext("org.thingsboard.edgetest.data.host");
-        HostDetails cloudHost = context.getBean("cloud", HostDetails.class);
-        HostDetails edgeHost = context.getBean("edge", HostDetails.class);
+    @Override
+    public void init(ApplicationConfig applicationConfig) {
+        super.init(applicationConfig);
+        cloudHost = applicationConfig.getCloudDetails();
+        edgeHost = applicationConfig.getEdgeDetails();
+        emulationDetails = applicationConfig.getEmulationDetails();
         String targetHostName;
         RestClient targetRestClient;
         if (target.equals("cloud")) {
@@ -36,13 +34,14 @@ public class EmulateService extends ActionService {
             throw new RuntimeException("Unrecognized target: " + target);
         }
         logger.info("Emulation target: " + "http" + targetHostName);
-        logger.info("Emulation time: " + emulationTime + " , telemetry send protocol: " + telemetrySendProtocol);
-        DeviceEmulator.setEmulator(cloudHost.getRestClient(), edgeHost.getRestClient(), targetHostName, emulationTime);
+        logger.info("Emulation time: " + emulationDetails.getEmulationTime() + " , telemetry send protocol: " + emulationDetails.getTelemetrySendProtocol());
+        DeviceEmulator.setEmulator(cloudHost.getRestClient(), edgeHost.getRestClient(), targetHostName, emulationDetails.getEmulationTime());
         solution.initSolution(targetRestClient);
         logger.info("Solution " + solutionName + " initialized");
+        inited = true;
     }
 
     public void start() {
-        solution.emulate(telemetrySendProtocol);
+        solution.emulate(emulationDetails.getTelemetrySendProtocol());
     }
 }

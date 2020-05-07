@@ -1,27 +1,37 @@
 package org.thingsboard.edgetest.data.host.edge;
 
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.thingsboard.edgetest.data.host.HostDetails;
 import org.thingsboard.rest.client.RestClient;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 @Component("edge")
 @NoArgsConstructor
 public class EdgeDetails extends HostDetails {
 
-    @Value("${edge.host.name}")
     private String edgeHostname;
-    @Value("${edge.user.username}")
     private String edgeUsername;
-    @Value("${edge.user.password}")
     private String edgePassword;
 
-    @PostConstruct
-    private void construct() {
+    public EdgeDetails(String edgeHostname, String edgeUsername, String edgePassword) {
+        this.edgeHostname = edgeHostname;
+        this.edgeUsername = edgeUsername;
+        this.edgePassword = edgePassword;
+        initRestClient();
+    }
+
+    @Override
+    public void init(HostDetails edgeDetails) {
+        this.edgeHostname = edgeDetails.getHostName();
+        this.edgeUsername = edgeDetails.getUserUsername();
+        this.edgePassword = edgeDetails.getUserPassword();
+        initRestClient();
+    }
+
+    @Override
+    protected void initRestClient() {
         restClient = new RestClient("http" + edgeHostname);
         logger.info("Rest client connected to edge on " + "http" + edgeHostname);
         restClient.login(edgeUsername, edgePassword);
@@ -33,6 +43,16 @@ public class EdgeDetails extends HostDetails {
         return edgeHostname;
     }
 
+    @Override
+    public String getUserUsername() {
+        return edgeUsername;
+    }
+
+    @Override
+    public String getUserPassword() {
+        return edgePassword;
+    }
+
     @PreDestroy
     private void destroy() {
         restClient.logout();
@@ -40,5 +60,4 @@ public class EdgeDetails extends HostDetails {
         restClient.close();
         logger.info("Rest client successfully disconnected from edge");
     }
-
 }
