@@ -1,0 +1,9 @@
+[
+  {
+    "name": "Edge1",
+    "type": "edge",
+    "label": "Simple edge",
+    "routingKey": "1234",
+    "secret": "qwer"
+  }
+]

@@ -15,7 +15,7 @@ public class InstallService extends ActionService {
         super.init(applicationConfig);
         HostDetails targetHost = applicationConfig.getTargetDetails(target);
         solution.initSolution(targetHost.getRestClient());
-        logger.info("Installation target: " + "http" + targetHost.getHostName());
+        logger.info("Installation target: " + targetHost.getHostName());
         logger.info("Solution " + solutionName + " initialized");
         inited = true;
     }

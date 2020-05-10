@@ -1,13 +1,11 @@
 package org.thingsboard.edgetest.data.host.cloud;
 
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.thingsboard.edgetest.data.host.HostDetails;
 import org.thingsboard.rest.client.RestClient;
 
 import javax.annotation.PreDestroy;
 
-@Component("cloud")
 @NoArgsConstructor
 public class CloudDetails extends HostDetails {
 
@@ -32,8 +30,8 @@ public class CloudDetails extends HostDetails {
 
     @Override
     protected void initRestClient() {
-        restClient = new RestClient("http" + cloudHostname);
-        logger.info("Rest client connected to cloud on " + "http" + cloudHostname);
+        restClient = new RestClient(cloudHostname);
+        logger.info("Rest client connected to cloud on " + cloudHostname);
         restClient.login(cloudUsername, cloudPassword);
         logger.info("Rest client successfully login with username: " + cloudUsername + " and password: " + cloudPassword);
     }

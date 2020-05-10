@@ -1,13 +1,11 @@
 package org.thingsboard.edgetest.data.host.edge;
 
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.thingsboard.edgetest.data.host.HostDetails;
 import org.thingsboard.rest.client.RestClient;
 
 import javax.annotation.PreDestroy;
 
-@Component("edge")
 @NoArgsConstructor
 public class EdgeDetails extends HostDetails {
 
@@ -32,8 +30,8 @@ public class EdgeDetails extends HostDetails {
 
     @Override
     protected void initRestClient() {
-        restClient = new RestClient("http" + edgeHostname);
-        logger.info("Rest client connected to edge on " + "http" + edgeHostname);
+        restClient = new RestClient(edgeHostname);
+        logger.info("Rest client connected to edge on " + edgeHostname);
         restClient.login(edgeUsername, edgePassword);
         logger.info("Rest client successfully login with username: " + edgeUsername + " and password: " + edgePassword);
     }

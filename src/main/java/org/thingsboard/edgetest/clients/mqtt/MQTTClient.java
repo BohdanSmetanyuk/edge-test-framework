@@ -29,7 +29,9 @@ public class MQTTClient extends Client {
 
         topic = V1 + DEVICES_ME + TELEMETRY;
         if(hostname.contains("localhost")) {
-            hostname = hostname.substring(0, 12);
+            hostname = hostname.substring(4, 16);
+        } else {
+            hostname = hostname.substring(4);
         }
         if(port==null) {
             setMqttPort("1883"); // standart mqtt port

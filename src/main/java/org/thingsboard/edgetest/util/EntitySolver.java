@@ -53,6 +53,8 @@ public class EntitySolver {
             edge.setRoutingKey(mapper.treeToValue(edgeNode.get("routingKey"), String.class));
             edge.setSecret(mapper.treeToValue(edgeNode.get("secret"), String.class));
             restClient.saveEdge(edge);
+            logger.info("Edge " + edge.getName() + " successfully installed.");
+            logger.info("Routing key: " + edge.getRoutingKey() + ", secret key: " + edge.getSecret());
         }
         logger.info("All edges installed successfully");
     }

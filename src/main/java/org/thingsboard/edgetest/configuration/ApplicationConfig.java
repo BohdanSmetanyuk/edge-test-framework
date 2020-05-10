@@ -4,8 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.stereotype.Component;
 import org.thingsboard.edgetest.clients.mqtt.MQTTClient;
 import org.thingsboard.edgetest.data.emulation.EmulationDetails;
 import org.thingsboard.edgetest.data.host.HostDetails;
@@ -20,11 +20,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@Configuration
+@Component
 public class ApplicationConfig implements ApplicationListener<ContextRefreshedEvent> {
 
-    @Value("${configuration}")
-    private String configuration;
+    @Value("${general}")
+    private String general;
+
+    @Value("${additional}")
+    private String additional;
 
     private static final Logger logger = LogManager.getLogger(ApplicationConfig.class);
 
@@ -39,30 +42,40 @@ public class ApplicationConfig implements ApplicationListener<ContextRefreshedEv
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         logger.info("Initializing configuration");
+        initConfig(general);
+        initConfig(additional);
+        //viewConfigurationParams(); // for debug
+        logger.info("Configuration successfully initialized");
+    }
+
+    private void initConfig(String filename) {
         String[] keyAndValue;
         try {
-            File file = new File(configuration);
+            File file = new File(filename);
+            logger.info("Reading " + file.getName());
             FileReader fileReader = new FileReader(file.getAbsolutePath());
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line = bufferedReader.readLine();
             while (line != null) {
-                if (!line.contains("=")) {
+                if(line.isEmpty() || line.contains("#")) {
+                    line = bufferedReader.readLine();
+                    continue;
+                } else if (!line.contains("=")) {
                     throw new RuntimeException("Illegal configuration file\nPlease rewrite your .conf file in next form: key=value...");
-                }
-                keyAndValue = line.split("=");
-                if(keyAndValue[0].equals("description")) {
-                    description = keyAndValue[1];
                 } else {
-                    params.put(keyAndValue[0], keyAndValue[1]);
+                    keyAndValue = line.split("=");
+                    if (keyAndValue[0].equals("description")) {
+                        description = keyAndValue[1];
+                    } else {
+                        params.put(keyAndValue[0], keyAndValue[1]);
+                    }
+                    line = bufferedReader.readLine();
                 }
-                line = bufferedReader.readLine();
             }
         } catch (IOException ex) {
             logger.error(ex.getMessage());
             ex.printStackTrace();
         }
-        viewConfigurationParams();
-        logger.info("Configuration successfully initialized");
     }
 
     private void viewConfigurationParams() {
