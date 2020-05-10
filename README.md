@@ -51,7 +51,7 @@ Here is an explanatory note on some of params:
 
 Get folder with latest release
 ```bash
-svn export https://github.com/BohdanSmetanyuk/edge-test-framework/trunk/release/release-1.0
+wget https://github.com/BohdanSmetanyuk/edge-test-framework/raw/master/release/release-1.0/release-1.0.zip | unzip
 ```
 Move inside that directory
 ```bash
