@@ -14,7 +14,7 @@ public class UninstallService extends ActionService {
         super.init(applicationConfig);
         HostDetails targetHost = applicationConfig.getTargetDetails(target);
         solution.initSolution(targetHost.getRestClient());
-        logger.info("Unnstallation target: " + targetHost.getHostName());
+        logger.info("Uninstallation target: " + targetHost.getHostName());
         logger.info("Solution " + solutionName + " initialized");
         inited = true;
     }

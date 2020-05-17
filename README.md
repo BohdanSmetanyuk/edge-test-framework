@@ -19,18 +19,13 @@ You can check the installation using the following command:
 ```bash
 java -version
 ```
-
-
-
 Also you need to install [Thingsboard](https://thingsboard.io/docs/user-guide/install/ubuntu/) and ThingsBoard-Edge:
 ```bash
-wget https://github.com/**********/***************/*****/thingsboard-edge.deb
-sudo dpkg -i thingsboard-edge.deb
-sudo nano /etc/thingsboard-edge/conf/thingsboard-edge.conf
-sudo service thingsboard-edge start
+wget https://github.com/thingsboard/thingsboard-edge/releases/download/v1.0/tb-edge.deb
+sudo dpkg -i tb-edge.deb
+sudo nano /etc/tb-edge/conf/tb-edge.conf
+sudo service tb-edge start
 ```
-
-
 
 # Configure your application
 
@@ -73,11 +68,11 @@ java -jar edge-test-framework.jar --general=configuration/hosts.conf --additiona
 
 Edit ThingsBoard-Edge configuration file:
 ```bash
-sudo nano /usr/share/edge/conf/edge.conf
+sudo nano /usr/share/tb-edge/conf/tb-edge.conf
 ```
 Replace params in lines `CLOUD_URL`, `SECRET` and `ROUTING_KEY` with your values to connect Edge to ThingsBoard Cloud. And start (or restart) edge service.
 ```bash
-sudo service thingsboard-edge start (restart)
+sudo service tb-edge start (restart)
 ```
 
 
@@ -144,11 +139,11 @@ java -jar edge-test-framework.jar --general=three-action-configuration/general.c
 
 Edit ThingsBoard-Edge configuration file:
 ```bash
-sudo nano /usr/share/edge/conf/edge.conf
+sudo nano /usr/share/tb-edge/conf/tb-edge.conf
 ```
 Replace params in lines `CLOUD_URL`, `SECRET` and `ROUTING_KEY` with your values to connect Edge to ThingsBoard Cloud. And start (or restart) edge service.
 ```bash
-sudo service thingsboard-edge start (restart)
+sudo service tb-edge start (restart)
 ```
 
 
@@ -162,15 +157,9 @@ java -jar edge-test-framework.jar --general=three-action-configuration/general.c
 java -jar edge-test-framework.jar --general=three-action-configuration/general.conf --additional=three-action-configuration/emulate-another-way.conf
 ``` 
 * Stop Edge service (If it is cloud solution):
-
-
-
 ```bash
-sudo service thingsboard-edge stop
+sudo service tb-edge stop
 ```
-
-
-
 * Run uninstallation:
 ```bash
 java -jar edge-test-framework.jar --general=three-action-configuration/general.conf --additional=three-action-configuration/uninstall.conf
