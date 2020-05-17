@@ -7,6 +7,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 import org.thingsboard.edgetest.clients.mqtt.MQTTClient;
+import org.thingsboard.edgetest.data.comparison.ComparisonDetails;
 import org.thingsboard.edgetest.data.emulation.EmulationDetails;
 import org.thingsboard.edgetest.data.host.HostDetails;
 import org.thingsboard.edgetest.data.host.cloud.CloudDetails;
@@ -127,5 +128,11 @@ public class ApplicationConfig implements ApplicationListener<ContextRefreshedEv
             }
         }
         return emulationDetails;
+    }
+
+    public ComparisonDetails getComparisonDetails() {
+        int attempts = params.get("attempts") == null ? 1 : Integer.parseInt(params.get("attempts"));
+        long delay = params.get("delay") == null ? 0L : Long.parseLong(params.get("delay"));
+        return new ComparisonDetails(attempts, delay);
     }
 }

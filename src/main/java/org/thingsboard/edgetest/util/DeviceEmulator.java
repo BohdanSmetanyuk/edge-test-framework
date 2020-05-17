@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.edgetest.data.common.TelemetryProfile;
+import org.thingsboard.edgetest.data.comparison.ComparisonDetails;
 import org.thingsboard.edgetest.data.emulation.EmulationDetails;
 import org.thingsboard.rest.client.RestClient;
 import org.thingsboard.server.common.data.Device;
@@ -27,6 +28,7 @@ public class DeviceEmulator extends Thread {
     private static RestClient restClientEdge;
     private static String targetHostName;
     private static EmulationDetails emulationDetails;
+    private static ComparisonDetails comparisonDetails;
 
     private List<String> deviceTelemetry;
     private List<String> cloudTelemetry;
@@ -75,6 +77,8 @@ public class DeviceEmulator extends Thread {
 
         client.disconnect();
 
+        logger.info("Messages send: " + limit);
+
         endTs = System.currentTimeMillis();
 
         logger.info("All telemetry pushed successfully");
@@ -89,16 +93,26 @@ public class DeviceEmulator extends Thread {
 
     private void compareTelemetry() {
         logger.info("Starting compare telemetry");
-        cloudTelemetry = getTimeseries(restClientCloud, tp.getDeviceDetails().getDeviceName(), tp.getTelemetryKeys());
-        edgeTelemetry = getTimeseries(restClientEdge, tp.getDeviceDetails().getDeviceName(), tp.getTelemetryKeys());
-        logger.info(this.getName() + ": " + (deviceTelemetry.equals(cloudTelemetry) && cloudTelemetry.equals(edgeTelemetry) ? "all telemetry equals" : "telemetry not equals"));
+        logger.info("Attempts: " + comparisonDetails.getAttempts() + " , delay: " + comparisonDetails.getDelay());
+        for(int i=1; i<=comparisonDetails.getAttempts(); i++) {
+            logger.info("Attempt #" + i);
+            cloudTelemetry = getTimeseries(restClientCloud, tp.getDeviceDetails().getDeviceName(), tp.getTelemetryKeys());
+            edgeTelemetry = getTimeseries(restClientEdge, tp.getDeviceDetails().getDeviceName(), tp.getTelemetryKeys());
+            logger.info(this.getName() + ": " + (deviceTelemetry.equals(cloudTelemetry) && cloudTelemetry.equals(edgeTelemetry) ? "all telemetry equals" : "telemetry not equals"));
+            try {
+                Thread.sleep(comparisonDetails.getDelay());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    static public void setEmulator(RestClient restClientCloud, RestClient restClientEdge, String targetHostName, EmulationDetails emulationDetails) {
+    static public void setEmulator(RestClient restClientCloud, RestClient restClientEdge, String targetHostName, EmulationDetails emulationDetails, ComparisonDetails comparisonDetails) {
         DeviceEmulator.restClientCloud = restClientCloud;
         DeviceEmulator.restClientEdge = restClientEdge;
         DeviceEmulator.targetHostName = targetHostName;
         DeviceEmulator.emulationDetails = emulationDetails;
+        DeviceEmulator.comparisonDetails = comparisonDetails;
         DeviceEmulator.context = new AnnotationConfigApplicationContext("org.thingsboard.edgetest.clients." + emulationDetails.getTelemetrySendProtocol());
     }
 

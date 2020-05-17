@@ -46,6 +46,8 @@ Here is an explanatory note on some of params:
 * `solution.name` - this value is the same as the bean's name of solution class. Enable two solutions: `cloud-solution` and `edge-solution`;
 * `telemetry.send.protocol` - you can push telemetry using MQTT and HTTP protocol. Value will be according to choosen protocol - `mqtt` or `http`;
 * `emulation.time` - time of emulating process in milliseconds.
+* `attempts` - attempts for telemetry comparison. Default value - `1`;
+* `delay` - time in milliseconds between attempts. Default value - `0`;
 
 # Run application
 
@@ -121,6 +123,10 @@ emulation.time=10000
 
 # target mqtt port
 mqtt.port=1885
+
+#optional params. by default it's 1 attempt and 0 milliseconds delay
+attempts=4
+delay=5000
 ```
 
 Test steps:

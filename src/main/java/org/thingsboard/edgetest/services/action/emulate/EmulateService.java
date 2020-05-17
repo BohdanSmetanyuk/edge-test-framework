@@ -2,6 +2,7 @@ package org.thingsboard.edgetest.services.action.emulate;
 
 import org.springframework.stereotype.Service;
 import org.thingsboard.edgetest.configuration.ApplicationConfig;
+import org.thingsboard.edgetest.data.comparison.ComparisonDetails;
 import org.thingsboard.edgetest.data.emulation.EmulationDetails;
 import org.thingsboard.edgetest.data.host.cloud.CloudDetails;
 import org.thingsboard.edgetest.data.host.edge.EdgeDetails;
@@ -15,6 +16,7 @@ public class EmulateService extends ActionService {
     private CloudDetails cloudHost;
     private EdgeDetails edgeHost;
     private EmulationDetails emulationDetails;
+    private ComparisonDetails comparisonDetails;
 
     @Override
     public void init(ApplicationConfig applicationConfig) {
@@ -22,6 +24,7 @@ public class EmulateService extends ActionService {
         cloudHost = applicationConfig.getCloudDetails();
         edgeHost = applicationConfig.getEdgeDetails();
         emulationDetails = applicationConfig.getEmulationDetails();
+        comparisonDetails = applicationConfig.getComparisonDetails();
         String targetHostName;
         RestClient targetRestClient;
         if (target.equals("cloud")) {
@@ -35,7 +38,7 @@ public class EmulateService extends ActionService {
         }
         logger.info("Emulation target: " +  targetHostName);
         logger.info("Emulation time: " + emulationDetails.getEmulationTime() + " , telemetry send protocol: " + emulationDetails.getTelemetrySendProtocol());
-        DeviceEmulator.setEmulator(cloudHost.getRestClient(), edgeHost.getRestClient(), targetHostName, emulationDetails);
+        DeviceEmulator.setEmulator(cloudHost.getRestClient(), edgeHost.getRestClient(), targetHostName, emulationDetails, comparisonDetails);
         solution.initSolution(targetRestClient);
         logger.info("Solution " + solutionName + " initialized");
         inited = true;
