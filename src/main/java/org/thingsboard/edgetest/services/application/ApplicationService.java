@@ -1,7 +1,6 @@
 package org.thingsboard.edgetest.services.application;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
 import org.thingsboard.edgetest.configuration.ApplicationConfig;
 import org.thingsboard.edgetest.services.action.ActionService;
@@ -30,7 +29,7 @@ public class ApplicationService {
         applicationConfig.getDescription();
         action = applicationConfig.getValue("action");
         logger.info("Preparing " + action + " application");
-        actionService = new AnnotationConfigApplicationContext("org.thingsboard.edgetest.services.action." + action).getBean(action + "Service", ActionService.class);
+        actionService = applicationConfig.getActionService();
         logger.info("Starting " + action + " application");
         actionService.init(applicationConfig);
         actionService.start();

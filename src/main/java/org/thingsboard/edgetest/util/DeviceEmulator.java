@@ -2,7 +2,6 @@ package org.thingsboard.edgetest.util;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.edgetest.data.common.TelemetryProfile;
 import org.thingsboard.edgetest.data.comparison.ComparisonDetails;
@@ -21,8 +20,6 @@ public class DeviceEmulator extends Thread {
     private static final Logger logger = LogManager.getLogger(DeviceEmulator.class);
 
     private TelemetryProfile tp;
-
-    private static AnnotationConfigApplicationContext context;
 
     private static RestClient restClientCloud;
     private static RestClient restClientEdge;
@@ -54,7 +51,7 @@ public class DeviceEmulator extends Thread {
 
     private void pushTelemetry() {
 
-        Client client = context.getBean(emulationDetails.getTelemetrySendProtocol(), Client.class);
+        Client client = emulationDetails.getClient();
         client.init(targetHostName, tp.getDeviceDetails().getAccessToken());
         logger.info("Starting push telemetry");
 
@@ -113,7 +110,6 @@ public class DeviceEmulator extends Thread {
         DeviceEmulator.targetHostName = targetHostName;
         DeviceEmulator.emulationDetails = emulationDetails;
         DeviceEmulator.comparisonDetails = comparisonDetails;
-        DeviceEmulator.context = new AnnotationConfigApplicationContext("org.thingsboard.edgetest.clients." + emulationDetails.getTelemetrySendProtocol());
     }
 
 }

@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 import org.thingsboard.edgetest.clients.mqtt.MQTTClient;
@@ -12,6 +13,8 @@ import org.thingsboard.edgetest.data.emulation.EmulationDetails;
 import org.thingsboard.edgetest.data.host.HostDetails;
 import org.thingsboard.edgetest.data.host.cloud.CloudDetails;
 import org.thingsboard.edgetest.data.host.edge.EdgeDetails;
+import org.thingsboard.edgetest.services.action.ActionService;
+import org.thingsboard.edgetest.solution.Solution;
 
 import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
@@ -30,6 +33,8 @@ public class ApplicationConfig implements ApplicationListener<ContextRefreshedEv
     @Value("${additional}")
     private String additional;
 
+    private AnnotationConfigApplicationContext context;
+
     private static final Logger logger = LogManager.getLogger(ApplicationConfig.class);
 
     private Map<String, String> params;
@@ -37,6 +42,7 @@ public class ApplicationConfig implements ApplicationListener<ContextRefreshedEv
 
     @PostConstruct
     private void construct() {
+        context = new AnnotationConfigApplicationContext();
         params = new HashMap<>();
     }
 
@@ -46,6 +52,7 @@ public class ApplicationConfig implements ApplicationListener<ContextRefreshedEv
         initConfig(general);
         initConfig(additional);
         //viewConfigurationParams(); // for debug
+        initBeans();
         logger.info("Configuration successfully initialized");
     }
 
@@ -79,8 +86,24 @@ public class ApplicationConfig implements ApplicationListener<ContextRefreshedEv
         }
     }
 
+    private void initBeans() {
+        logger.info("Initializing beans");
+        context.scan("org.thingsboard.edgetest.services.action." + params.get("action"));
+        context.scan("org.thingsboard.edgetest.solution");
+        context.refresh();
+        logger.info("Beans successfully initialized.");
+    }
+
     private void viewConfigurationParams() {
         logger.info("Configuration params:\n" + params);
+    }
+
+    public ActionService getActionService() {
+        return context.getBean(params.get("action") + "Service", ActionService.class);
+    }
+
+    public Solution getSolution() {
+        return context.getBean(params.get("solution.name"), Solution.class);
     }
 
     public void getDescription() {
