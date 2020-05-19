@@ -5,7 +5,7 @@ Each solution consists of Edges, Assets, Devices and relations between them.
 You can choose available solution, or write your own custom one.
 Every solution supports three main actions:
 * installation - installing different entities and relations between them on TB cloud;
-* emulation - pushing data from emulator and comparing telemetry on cloud and on edge; 
+* emulation - pushing data from emulator and comparing telemetry on cloud and on edge. There are two variants of emulation mode - pushing messages in the period of time and push amount of messages as soon as possible; 
 * uninstallation - uninstalling solution when there is no need of it.
 
 # Preparing your envinroment
@@ -40,7 +40,8 @@ Here is an explanatory note on some of params:
 * `target` - target of action. Can have two value - `cloud`, or `edge`;
 * `solution.name` - this value is the same as the bean's name of solution class. Enable two solutions: `cloud-solution` and `edge-solution`;
 * `telemetry.send.protocol` - you can push telemetry using MQTT and HTTP protocol. Value will be according to choosen protocol - `mqtt` or `http`;
-* `emulation.time` - time of emulating process in milliseconds.
+* `emulation.time` - time of emulating process in milliseconds. First variant of emulation mode;
+* `emulation.messages.amount` - how many messages emulator should send. Second variant of emulation mode;
 * `attempts` - attempts for telemetry comparison. Default value - `1`;
 * `delay` - time in milliseconds between attempts. Default value - `0`;
 
@@ -114,7 +115,10 @@ action=emulate
 target=edge
 
 telemetry.send.protocol=mqtt
-emulation.time=10000
+
+# choose emulation mode
+#emulation.time=10000
+emulation.messages.amount=1000
 
 # target mqtt port
 mqtt.port=1885

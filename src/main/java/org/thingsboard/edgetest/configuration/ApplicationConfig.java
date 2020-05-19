@@ -114,12 +114,11 @@ public class ApplicationConfig implements ApplicationListener<ContextRefreshedEv
         }
     }
 
-    public String getValue(String key) throws RuntimeException{
-        String value = params.get(key);
-        if (value == null) {
+    public String getValue(String key) throws RuntimeException {
+        if (!params.containsKey(key)) {
             throw new RuntimeException("Unrecognized param: " + key);
         }
-        return value;
+        return params.get(key);
     }
 
     public HostDetails getTargetDetails(String target) {
@@ -141,21 +140,25 @@ public class ApplicationConfig implements ApplicationListener<ContextRefreshedEv
     }
 
     public EmulationDetails getEmulationDetails() {
-        EmulationDetails emulationDetails = new EmulationDetails(params.get("telemetry.send.protocol"), Long.parseLong(params.get("emulation.time")));
-        if (params.containsKey("mqtt.port")) {
-            emulationDetails.setMqttPort(params.get("mqtt.port"));
+        EmulationDetails emulationDetails = new EmulationDetails(params.get("telemetry.send.protocol"));
+        if (params.containsKey("emulation.time") && params.containsKey("emulation.messages.amount")) {
+            throw new RuntimeException("Configuration contains both params: \"emulation.time\" and \"emulation.message.time\". Please rewrite you configuration with only one variant.");
+        } else if (params.containsKey("emulation.time")) {
+            emulationDetails.setEmulationTime(Long.parseLong(params.get("emulation.time")));
+        } else if (params.containsKey("emulation.messages.amount")) {
+            emulationDetails.setMessageAmount(Integer.parseInt(params.get("emulation.messages.amount")));
+        } else {
+            throw new RuntimeException("Illegal configuration. Params \"emulation.time\" or \"emulation.message.time\" have not been found");
         }
-        if(emulationDetails.getTelemetrySendProtocol().equals("mqtt") && emulationDetails.getMqttPort()!=null) {
-            if(MQTTClient.getMqttPort()==null) {
-                MQTTClient.setMqttPort(emulationDetails.getMqttPort());
-            }
+        if (params.containsKey("mqtt.port") && emulationDetails.getTelemetrySendProtocol().equals("mqtt")) {
+            MQTTClient.setMqttPort(params.get("mqtt.port"));
         }
         return emulationDetails;
     }
 
     public ComparisonDetails getComparisonDetails() {
-        int attempts = params.get("attempts") == null ? 1 : Integer.parseInt(params.get("attempts"));
-        long delay = params.get("delay") == null ? 0L : Long.parseLong(params.get("delay"));
+        int attempts = params.containsKey("attempts") ? Integer.parseInt(params.get("attempts")): 1;
+        long delay = params.containsKey("delay") ? Long.parseLong(params.get("delay")) : 0L;
         return new ComparisonDetails(attempts, delay);
     }
 }

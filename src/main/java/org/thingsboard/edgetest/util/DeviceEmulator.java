@@ -50,16 +50,32 @@ public class DeviceEmulator extends Thread {
     }
 
     private void pushTelemetry() {
-
         Client client = emulationDetails.getClient();
         client.init(targetHostName, tp.getDeviceDetails().getAccessToken());
         logger.info("Starting push telemetry");
-
         limit = 0;
         startTs = System.currentTimeMillis();
 
-        long breakTime = System.currentTimeMillis()+emulationDetails.getEmulationTime();
+        switch (emulationDetails.getMode()) {
+            case BY_EMULATION_TIME:
+                pushTelemetryByTime(client);
+                break;
+            case BY_MESSAGE_AMOUNT:
+                pushTelemetryByMessageAmount(client);
+                break;
+            default:
+                throw new RuntimeException("Unrecognized emulation mode");
+        }
 
+        client.disconnect();
+        logger.info("Messages pushed: " + limit);
+        endTs = System.currentTimeMillis();
+        logger.info("All messages pushed successfully");
+    }
+
+    private void pushTelemetryByTime(Client client) {
+        logger.info("Pushing telemetry by emulation time");
+        long breakTime = System.currentTimeMillis()+emulationDetails.getEmulationTime();
         while(System.currentTimeMillis()<breakTime) {
             String content = tp.generateContent();
             client.publish(content);
@@ -71,14 +87,30 @@ public class DeviceEmulator extends Thread {
                 e.printStackTrace();
             }
         }
+    }
 
-        client.disconnect();
+    private void pushTelemetryByMessageAmount(Client client) { // upgrade
+        logger.info("Pushing telemetry by message amount");
+        int messageAmount = emulationDetails.getMessageAmount();
+        logger.info("Going to push: " + messageAmount + " messages");
+        while(limit < messageAmount) {
+            String content = tp.generateContent();
+            client.publish(content);
+            deviceTelemetry.add(Converter.convertContentToSimpleString(content));
+            limit++;
 
-        logger.info("Messages send: " + limit);
 
-        endTs = System.currentTimeMillis();
+            try { // here must be an algorithm // RestClient.saveEntityTelemetry
+                Thread.sleep(1);
+                /*if(limit%1000==0) {
+                    Thread.sleep(1000);
+                }*/
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-        logger.info("All telemetry pushed successfully");
+
+        }
     }
 
     private List<String> getTimeseries(RestClient restClient, String deviceName, List<String> keys) {
