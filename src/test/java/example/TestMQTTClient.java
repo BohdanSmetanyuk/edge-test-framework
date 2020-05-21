@@ -11,28 +11,24 @@ public class TestMQTTClient {
     public static void main(String[] args) {
 
         final String TOPIC  = "v1/devices/me/telemetry";
-        String content      = "{\"Temp\":20,\"Humi\":70}";
-        String broker       = "tcp://127.0.0.1:1883";
+        long time = System.currentTimeMillis();
+        String content      = "{'ts':" + time + ", 'values':{'humidity':100, ' temperature':100}}";
+        String broker       = "tcp://localhost:1883";
         String clientId     = "ThingsboardTestMQTTClient";
-
-        // PROBLEMS WITH TELEMETRY
-
         try {
+            System.out.println(content);
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
             connOpts.setKeepAliveInterval(1);
-            connOpts.setUserName("BWDTqlOGwPFnwrHey2P8");
+            connOpts.setUserName("OoLTDrQzJ6R5mvT0cinY");
             MqttClient sampleClient = new MqttClient(broker, clientId,  new MemoryPersistence());
             sampleClient.connect(connOpts);
             // MqttMessage message = new MqttMessage(content.getBytes());
-            while(true) {
-                Thread.sleep(2000);
-                sampleClient.publish(TOPIC, content.getBytes(), 0, false);
-                System.out.println("Message published ");
-                System.out.println("Please check data in telemetry of your device on thingsboard");
-            }
-
-        } catch(MqttException | InterruptedException ex) {
+            sampleClient.publish(TOPIC, content.getBytes(), 0, false);
+            System.out.println("Message published ");
+            System.out.println("Please check data in telemetry of your device on thingsboard");
+            sampleClient.disconnect();
+        } catch(MqttException  ex) {
             ex.printStackTrace();
         }
     }

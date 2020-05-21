@@ -33,7 +33,7 @@ public class DeviceEmulator extends Thread {
 
     private Long startTs;
     private Long endTs;
-    private int limit;
+    private int messagesSent;
 
     public DeviceEmulator(TelemetryProfile tp) {
         super(tp.getDeviceDetails().getDeviceName() + " emulator");
@@ -53,7 +53,7 @@ public class DeviceEmulator extends Thread {
         Client client = emulationDetails.getClient();
         client.init(targetHostName, tp.getDeviceDetails().getAccessToken());
         logger.info("Starting push telemetry");
-        limit = 0;
+        messagesSent = 0;
         startTs = System.currentTimeMillis();
 
         switch (emulationDetails.getMode()) {
@@ -68,7 +68,7 @@ public class DeviceEmulator extends Thread {
         }
 
         client.disconnect();
-        logger.info("Messages pushed: " + limit);
+        logger.info("Messages pushed: " + messagesSent);
         endTs = System.currentTimeMillis();
         logger.info("All messages pushed successfully");
     }
@@ -80,7 +80,7 @@ public class DeviceEmulator extends Thread {
             String content = tp.generateContent();
             client.publish(content);
             deviceTelemetry.add(Converter.convertContentToSimpleString(content));
-            limit++;
+            messagesSent++;
             try {
                 Thread.sleep(tp.getPublishFrequencyInMillis());
             } catch (InterruptedException e) {
@@ -89,32 +89,30 @@ public class DeviceEmulator extends Thread {
         }
     }
 
-    private void pushTelemetryByMessageAmount(Client client) { // upgrade
+    private void pushTelemetryByMessageAmount(Client client) {
         logger.info("Pushing telemetry by message amount");
         int messageAmount = emulationDetails.getMessageAmount();
         logger.info("Going to push: " + messageAmount + " messages");
-        while(limit < messageAmount) {
-            String content = tp.generateContent();
+        while(messagesSent < messageAmount) {
+            String content = tp.generateContent(System.currentTimeMillis());
             client.publish(content);
-            deviceTelemetry.add(Converter.convertContentToSimpleString(content));
-            limit++;
+            deviceTelemetry.add(Converter.convertContentWithTsToSimpleString(content));
+            messagesSent++;
 
-
-            try { // here must be an algorithm // RestClient.saveEntityTelemetry
-                Thread.sleep(1);
-                /*if(limit%1000==0) {
-                    Thread.sleep(1000);
-                }*/
+            try {
+                Thread.sleep(10); // one hundred messages per second
+                if(messagesSent%100==0) {   // than wait 100 millis
+                    Thread.sleep(100);
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
 
         }
     }
 
     private List<String> getTimeseries(RestClient restClient, String deviceName, List<String> keys) {
-        TimePageLink timePageLink = new TimePageLink(limit, startTs, endTs);
+        TimePageLink timePageLink = new TimePageLink(messagesSent, startTs, endTs);
         Device device = restClient.getTenantDevice(deviceName).get();
         List<TsKvEntry> timeseries = restClient.getTimeseries(device.getId(), keys, 0L, Aggregation.NONE, timePageLink);
         return Converter.convertTsKvEntryListToSimpleStringList(timeseries, keys.size());
@@ -123,17 +121,38 @@ public class DeviceEmulator extends Thread {
     private void compareTelemetry() {
         logger.info("Starting compare telemetry");
         logger.info("Attempts: " + comparisonDetails.getAttempts() + " , delay: " + comparisonDetails.getDelay());
-        for(int i=1; i<=comparisonDetails.getAttempts(); i++) {
+        int attempts = comparisonDetails.getAttempts();
+        for(int i=1; i<=attempts; i++) {
             logger.info("Attempt #" + i);
             cloudTelemetry = getTimeseries(restClientCloud, tp.getDeviceDetails().getDeviceName(), tp.getTelemetryKeys());
             edgeTelemetry = getTimeseries(restClientEdge, tp.getDeviceDetails().getDeviceName(), tp.getTelemetryKeys());
-            logger.info(this.getName() + ": " + (deviceTelemetry.equals(cloudTelemetry) && cloudTelemetry.equals(edgeTelemetry) ? "all telemetry equals" : "telemetry not equals"));
-            try {
-                Thread.sleep(comparisonDetails.getDelay());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            boolean isTelemetryEquals = deviceTelemetry.equals(cloudTelemetry) && cloudTelemetry.equals(edgeTelemetry); // it's transitive
+            if (isTelemetryEquals) {
+                logger.info(this.getName() + ": all telemetry equals");
+                if (i < attempts) {
+                    logger.info((attempts - i) + " attempts will be passed");
+                }
+                break;
+            } else {
+                logger.info(this.getName() + ": telemetry not equals");
+                endTs = System.currentTimeMillis();
+                if (i < attempts) {
+                    try {
+                        Thread.sleep(comparisonDetails.getDelay());
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    showComparisonFailureDetails(); // for debug
+                }
             }
         }
+    }
+
+    private void showComparisonFailureDetails() { //
+        logger.info("Data size: " + "device: " + deviceTelemetry.size() + " cloud: " + cloudTelemetry.size() + " edge: "  + edgeTelemetry.size());
+        logger.info("First value: " + "device: " + deviceTelemetry.get(0) + " cloud: " + cloudTelemetry.get(0) + " edge: "  + edgeTelemetry.get(0));
+        logger.info("Last value: " + "device: " + deviceTelemetry.get(deviceTelemetry.size()-1) + " cloud: " + cloudTelemetry.get(cloudTelemetry.size()-1) + " edge: "  + edgeTelemetry.get(edgeTelemetry.size()-1));
     }
 
     static public void setEmulator(RestClient restClientCloud, RestClient restClientEdge, String targetHostName, EmulationDetails emulationDetails, ComparisonDetails comparisonDetails) {

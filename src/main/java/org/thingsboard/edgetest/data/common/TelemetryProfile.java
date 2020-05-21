@@ -45,9 +45,24 @@ public class TelemetryProfile {
     }
 
     public String generateContent() {
+        StringBuilder content = new StringBuilder();
+        content.append("{");
+        addKeysAndValuesToContent(content);
+        content.append("}");
+        return content.toString();
+    }
+
+    public String generateContent(long ts) {
+        StringBuilder content = new StringBuilder();
+        content.append("{'ts':").append(ts).append(",'values':{");
+        addKeysAndValuesToContent(content);
+        content.append("}}");
+        return content.toString();
+    }
+
+    private void addKeysAndValuesToContent(StringBuilder content) {
         Iterator<String> iterator = telemetry.keySet().iterator();
         Random random = new Random();
-        StringBuilder content = new StringBuilder("{");
         while (iterator.hasNext()) {
             String key = iterator.next();
             int value = random.nextInt(telemetry.get(key).get("maxValue")+1)+telemetry.get(key).get("minValue");
@@ -56,8 +71,6 @@ public class TelemetryProfile {
                 content.append(",");
             }
         }
-        content.append("}");
-        return content.toString();
     }
 
     public List<String> getTelemetryKeys() {

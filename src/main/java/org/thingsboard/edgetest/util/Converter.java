@@ -26,4 +26,8 @@ public class Converter {
     public static String convertContentToSimpleString(String content) {
         return content.replaceAll("\\W", "");
     }
+
+    public static String convertContentWithTsToSimpleString(String content) {
+        return content.replaceAll("[{:',}]", "").split("values")[1];
+    }
 }
