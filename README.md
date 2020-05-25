@@ -19,14 +19,28 @@ You can check the installation using the following command:
 ```bash
 java -version
 ```
-Also you need to install [Thingsboard](https://thingsboard.io/docs/user-guide/install/ubuntu/) and ThingsBoard-Edge:
+Also you need to install [Thingsboard](https://thingsboard.io/docs/user-guide/install/ubuntu/) (with Edge) and ThingsBoard-Edge:
 ```bash
-wget https://github.com/thingsboard/thingsboard-edge/releases/download/v1.0/tb-edge.deb
+wget https://github.com/thingsboard/thingsboard-edge/releases/download/v1.0/tb-edge.deb //
 sudo dpkg -i tb-edge.deb
-sudo nano /etc/tb-edge/conf/tb-edge.conf
 sudo service tb-edge start
 ```
-
+Don't forget to create database for thingsboard-edge:
+```bash
+sudo su - postgres
+psql
+CREATE DATABASE thingsboard-edge;
+```
+Configure `/etc/tb-edge/conf/tb-edge.conf` file:
+```bash
+sudo nano /etc/tb-edge/conf/tb-edge.conf
+```
+Replace params in lines `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD` with your values:
+```bash
+export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/thingsboard-edge
+export SPRING_DATASOURCE_USERNAME=postgres
+export SPRING_DATASOURCE_PASSWORD=PUT_YOUR_POSTGRESQL_PASSWORD_HERE
+```
 # Configure your application
 
 Before launching the application you should set up params in configuration files depending on framework's task.
@@ -71,7 +85,16 @@ Edit ThingsBoard-Edge configuration file:
 ```bash
 sudo nano /usr/share/tb-edge/conf/tb-edge.conf
 ```
-Replace params in lines `CLOUD_URL`, `SECRET` and `ROUTING_KEY` with your values to connect Edge to ThingsBoard Cloud. And start (or restart) edge service.
+Replace params in lines `CLOUD_URL`, `SECRET` and `ROUTING_KEY` with your values to connect Edge to ThingsBoard Cloud. Or if they don't exist, add these lines with your values.
+```
+...
+....
+.....
+export CLOUD_URL=PUT_YOUR_CLOUD_URL_HERE
+export SECRET=PUT_YOUR_SECRET_HERE
+export ROUTING_KEY=PUT_YOUR_ROUTING_KEY_HERE
+```
+And start (or restart) edge service.
 ```bash
 sudo service tb-edge start (restart)
 ```
