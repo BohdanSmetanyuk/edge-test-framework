@@ -19,28 +19,48 @@ You can check the installation using the following command:
 ```bash
 java -version
 ```
-Also you need to install [Thingsboard](https://thingsboard.io/docs/user-guide/install/ubuntu/) (with Edge) and ThingsBoard-Edge:
+Also you need to install [Thingsboard](https://thingsboard.io/docs/user-guide/install/ubuntu/) (with Edge) and ThingsBoard-Edge.
+
+# ThingsBoard-Edge installation
+
+Install Edge as service:
 ```bash
 wget https://github.com/thingsboard/thingsboard-edge/releases/download/v1.0/tb-edge.deb //
 sudo dpkg -i tb-edge.deb
-sudo service tb-edge start
 ```
-Don't forget to create database for thingsboard-edge:
+Then you need to create database for ThingsBoard-Edge:
 ```bash
 sudo su - postgres
 psql
-CREATE DATABASE thingsboard-edge;
+CREATE DATABASE tb_edge;
 ```
 Configure `/etc/tb-edge/conf/tb-edge.conf` file:
 ```bash
 sudo nano /etc/tb-edge/conf/tb-edge.conf
 ```
-Replace params in lines `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD` with your values:
+Add the following lines to the configuration file. Don’t forget to replace `PUT_YOUR_POSTGRESQL_PASSWORD_HERE` with your real postgres user password:
 ```bash
-export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/thingsboard-edge
+# DB Configuration 
+export DATABASE_ENTITIES_TYPE=sql
+export DATABASE_TS_TYPE=sql
+export SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
+export SPRING_DRIVER_CLASS_NAME=org.postgresql.Driver
+export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/tb_edge
 export SPRING_DATASOURCE_USERNAME=postgres
 export SPRING_DATASOURCE_PASSWORD=PUT_YOUR_POSTGRESQL_PASSWORD_HERE
+export SPRING_DATASOURCE_MAXIMUM_POOL_SIZE=5
+# Specify partitioning size for timestamp key-value storage. Allowed values: DAYS, MONTHS, YEARS, INDEFINITE.
+export SQL_POSTGRES_TS_KV_PARTITIONING=MONTHS
 ```
+Run install script:
+```bash
+sudo /usr/share/tb-edge/bin/install/install.sh
+```
+After that you can start your Edge using following command:
+```bash
+service tb-edge start
+```
+
 # Configure your application
 
 Before launching the application you should set up params in configuration files depending on framework's task.
@@ -78,29 +98,23 @@ Install Cloud solution. Cloud solution installs one Edge entity on your cloud.
 ```bash
 java -jar edge-test-framework.jar --general=configuration/hosts.conf --additional=configuration/action.conf
 ``` 
-
-
-
 Edit ThingsBoard-Edge configuration file:
 ```bash
 sudo nano /usr/share/tb-edge/conf/tb-edge.conf
 ```
-Replace params in lines `CLOUD_URL`, `SECRET` and `ROUTING_KEY` with your values to connect Edge to ThingsBoard Cloud. Or if they don't exist, add these lines with your values.
+Add the following lines to the configuration file. Don’t forget to replace `PUT_YOUR_SECRET_HERE` and `PUT_YOUR_ROUTING_KEY_HERE` with your real secret and routing key:
 ```
-...
-....
-.....
-export CLOUD_URL=PUT_YOUR_CLOUD_URL_HERE
-export SECRET=PUT_YOUR_SECRET_HERE
-export ROUTING_KEY=PUT_YOUR_ROUTING_KEY_HERE
+export CLOUD_ROUTING_SECRET=PUT_YOUR_SECRET_HERE
+export CLOUD_ROUTING_KEY=PUT_YOUR_ROUTING_KEY_HERE
+export MQTT_BIND_PORT=1885
+export COAP_ENABLED=false
+export HTTP_BIND_PORT=8090
+export RPC_PORT=9002
 ```
 And start (or restart) edge service.
 ```bash
 sudo service tb-edge start (restart)
 ```
-
-
-
 After that you can start working with that Edge and execute another tests by configuring `configuration/action.conf`. You can find hits and configuration examples in that file.
 ```bash
 nano configuration/action.conf
@@ -161,20 +175,23 @@ nano three-action-configuration/$FILE_NAME.conf
 java -jar edge-test-framework.jar --general=three-action-configuration/general.conf --additional=three-action-configuration/install.conf
 ``` 
 * Set up and run Edge service (If it is cloud solution):
-
-
-
 Edit ThingsBoard-Edge configuration file:
 ```bash
 sudo nano /usr/share/tb-edge/conf/tb-edge.conf
 ```
-Replace params in lines `CLOUD_URL`, `SECRET` and `ROUTING_KEY` with your values to connect Edge to ThingsBoard Cloud. And start (or restart) edge service.
+Add the following lines to the configuration file. Don’t forget to replace `PUT_YOUR_SECRET_HERE` and `PUT_YOUR_ROUTING_KEY_HERE` with your real secret and routing key:
+```
+export CLOUD_ROUTING_SECRET=PUT_YOUR_SECRET_HERE
+export CLOUD_ROUTING_KEY=PUT_YOUR_ROUTING_KEY_HERE
+export MQTT_BIND_PORT=1885
+export COAP_ENABLED=false
+export HTTP_BIND_PORT=8090
+export RPC_PORT=9002
+```
+And start (or restart) edge service.
 ```bash
 sudo service tb-edge start (restart)
 ```
-
-
-
 * Run emulation in one way:
 ```bash
 java -jar edge-test-framework.jar --general=three-action-configuration/general.conf --additional=three-action-configuration/emulate-one-way.conf
