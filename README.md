@@ -56,6 +56,17 @@ Run install script:
 ```bash
 sudo /usr/share/tb-edge/bin/install/install.sh
 ```
+
+If you have old version of ThingsBoard-Edge you may have an error
+```error
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'edgeFileEventStorage': 
+Invocation of init method failed; nested exception is java.lang.RuntimeException: Failed to create a new file!
+```
+You can fix it by using following command:
+```bash
+sudo chmod 777 /usr/share/tb-edge/bin/install/install.sh
+```
+
 After that you can start your Edge using following command:
 ```bash
 service tb-edge start
