@@ -1,0 +1,10 @@
+[
+  {
+    "name": "Test device",
+    "type": "DEVICE",
+    "to": {
+              "name": "Test edge",
+              "type": "EDGE"
+          }
+  }
+]

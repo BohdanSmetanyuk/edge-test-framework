@@ -1,0 +1,9 @@
+[
+  {
+    "name": "Test edge",
+    "type": "test edge",
+    "label": "test edge",
+    "routingKey": "secret",
+    "secret": "routing_key"
+  }
+]

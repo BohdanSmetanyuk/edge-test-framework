@@ -1,6 +1,5 @@
 package org.thingsboard.edgetest.services.action.install;
 
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
 import org.thingsboard.edgetest.configuration.ApplicationConfig;
 import org.thingsboard.edgetest.data.host.HostDetails;

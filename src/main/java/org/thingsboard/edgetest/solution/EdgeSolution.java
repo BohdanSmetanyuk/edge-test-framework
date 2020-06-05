@@ -1,8 +1,6 @@
 package org.thingsboard.edgetest.solution;
 
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
-import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.edgetest.data.common.TelemetryProfile;
 import org.thingsboard.edgetest.util.DeviceEmulator;
 import org.thingsboard.server.common.data.Device;
