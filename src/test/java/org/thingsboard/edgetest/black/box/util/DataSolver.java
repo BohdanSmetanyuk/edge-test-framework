@@ -3,6 +3,7 @@ package org.thingsboard.edgetest.black.box.util;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,6 +34,10 @@ public class DataSolver {
         return readFileContentToJsonNode(getRelationsDir(), "relations.json");
     }
 
+    public File getDockerFile(String folder) {
+        return new File(getDockerFolderPath(folder));
+    }
+
     private String getDataDir() {
         return Paths.get("src", "test", "data").toFile().getAbsolutePath();
     }
@@ -49,6 +54,9 @@ public class DataSolver {
         return Paths.get(getDataDir(), "json", "relations");
     }
 
+    private String getDockerFolderPath(String folder) {
+        return Paths.get(getDataDir(), "docker", folder, "docker-compose.yml").toString();
+    }
 
     private JsonNode readFileContentToJsonNode(Path path, String fileName) throws IOException {
         return mapper.readTree(Files.readAllBytes(path.resolve(fileName)));

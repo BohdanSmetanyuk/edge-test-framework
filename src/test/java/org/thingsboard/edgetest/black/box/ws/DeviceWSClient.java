@@ -24,14 +24,11 @@ import java.util.Random;
 @Slf4j
 public class DeviceWSClient extends WebSocketClient {
 
-    private ObjectMapper mapper;
-
     @Getter
     private String latestMessage;
 
     public DeviceWSClient(String host, String jwt, DeviceId deviceId) throws URISyntaxException {
         super(new URI("ws://" + host + "/api/ws/plugins/telemetry?token=" + jwt));
-        mapper = new ObjectMapper();
         connect();
         send(getSubscriptionCommands(deviceId));
     }
@@ -75,6 +72,7 @@ public class DeviceWSClient extends WebSocketClient {
     }
 
     public String readResponse(String message) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(message);
         JsonNode data = mapper.treeToValue(jsonNode.get("data"), JsonNode.class);
         Iterator<String> iterator = data.fieldNames();

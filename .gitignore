@@ -3,3 +3,4 @@
 /edge-test-framework.iml
 /bin/
 /src/main/resources/todo.txt
+/src/test/data/docker/edge/docker-compose.yml
