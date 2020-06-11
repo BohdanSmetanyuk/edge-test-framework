@@ -14,35 +14,41 @@ import org.thingsboard.server.common.data.id.DeviceId;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 //latest ts
-//check response
 //only device
 
 @Slf4j
 public class DeviceWSClient extends WebSocketClient {
 
-    @Getter
+    private DeviceId deviceId;
     private String latestMessage;
+
+    //@Getter
+    //private List<String> messages;
 
     public DeviceWSClient(String host, String jwt, DeviceId deviceId) throws URISyntaxException {
         super(new URI("ws://" + host + "/api/ws/plugins/telemetry?token=" + jwt));
-        connect();
-        send(getSubscriptionCommands(deviceId));
+        this.connect();
+        this.deviceId = deviceId;
+        //this.messages = new ArrayList<>();
     }
 
     @Override
     public void onOpen(ServerHandshake serverHandshake) {
         log.info("WebSocket client is opened");
+        this.send(getSubscriptionCommands(deviceId));
     }
 
     @Override
-    public void onMessage(String s) {
+    public synchronized void onMessage(String message) {
         try {
-            String response = readResponse(s);
-            latestMessage = response;
+            latestMessage = readResponse(message);
+            //messages.add(latestMessage);
         } catch (IOException ex) {
             log.error(ex.getMessage());
         }
@@ -58,6 +64,11 @@ public class DeviceWSClient extends WebSocketClient {
         log.error(e.getMessage());
     }
 
+    public String getLatestMessage() throws InterruptedException {
+        Thread.sleep(500); //
+        return latestMessage;
+    }
+
     private String getSubscriptionCommands(DeviceId deviceId) {
         JsonObject wsRequest = new JsonObject();
         JsonArray cmd = new JsonArray();
@@ -71,7 +82,7 @@ public class DeviceWSClient extends WebSocketClient {
         return wsRequest.toString();
     }
 
-    public String readResponse(String message) throws IOException {
+    private String readResponse(String message) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(message);
         JsonNode data = mapper.treeToValue(jsonNode.get("data"), JsonNode.class);

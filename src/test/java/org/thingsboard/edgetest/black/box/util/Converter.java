@@ -1,30 +1,25 @@
 package org.thingsboard.edgetest.black.box.util;
 
-import lombok.extern.slf4j.Slf4j;
 import org.thingsboard.server.common.data.kv.TsKvEntry;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
 public class Converter {
 
-    /**
-     * Convert latest timeseries to string view
-     */
+    public static List<String> convertTsKvEntryListToSimpleStringList(List<TsKvEntry> tsKvEntryList, int numberOfKeys) {
+        List<String> simpleStringList = new ArrayList<>();
 
-    public static String tsKvEntryToString(List<TsKvEntry> tsKvEntries) {
-        Iterator<TsKvEntry> iterator = tsKvEntries.iterator();
-        StringBuilder content = new StringBuilder();
-        content.append("{");
-        while (iterator.hasNext()) {
-            TsKvEntry tsKvEntry = iterator.next();
-            content.append("'").append(tsKvEntry.getKey()).append("'").append(":").append(tsKvEntry.getValueAsString());
-            if(iterator.hasNext()) {
-                content.append(",");
+        int sizeOfTsKvEntrySublist = tsKvEntryList.size()/numberOfKeys;
+
+        for (int i = sizeOfTsKvEntrySublist-1; i >= 0; i--) {
+            StringBuilder simpleString = new StringBuilder();
+            for(int j=0; j<numberOfKeys; j++) {
+                TsKvEntry tsKvEntry = tsKvEntryList.get(i+j*sizeOfTsKvEntrySublist);
+                simpleString.append(tsKvEntry.getKey()).append(tsKvEntry.getValueAsString());
             }
+            simpleStringList.add(simpleString.toString());
         }
-        content.append("}");
-        return content.toString();
+        return simpleStringList;
     }
 }

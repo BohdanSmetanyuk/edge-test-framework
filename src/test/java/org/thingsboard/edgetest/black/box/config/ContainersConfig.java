@@ -21,11 +21,11 @@ public class ContainersConfig {
         cloudContainer = new DockerComposeContainer(ds.getDockerFile("cloud"))
                 .withPull(false)
                 .withLocalCompose(true)
-                .waitingFor("mytb", Wait.forHttp("/home"));
+                .waitingFor("mytb", Wait.forHttp("/home")); //
         edgeContainer = new DockerComposeContainer(ds.getDockerFile("edge"))
                 .withPull(false)
                 .withLocalCompose(true)
-                .waitingFor("mytbedge", Wait.forHttp("/home"));
+                .waitingFor("mytbedge", Wait.forHttp("/home")); //
     }
 
 }

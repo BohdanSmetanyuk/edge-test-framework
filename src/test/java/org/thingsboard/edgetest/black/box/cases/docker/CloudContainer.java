@@ -1,4 +1,4 @@
-package org.thingsboard.edgetest.black.box.docker;
+package org.thingsboard.edgetest.black.box.cases.docker;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -14,13 +14,12 @@ import org.thingsboard.edgetest.black.box.config.ContainersConfig;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = {ContainersConfig.class})
-public class StartContainerTest {
+public class CloudContainer {
 
-
-    DockerComposeContainer cloudContainer;
+    private DockerComposeContainer cloudContainer;
 
     @Autowired
-    public void setCloudParams(ContainersConfig containers) {
+    public void init(ContainersConfig containers) {
         cloudContainer = containers.getCloudContainer();
     }
 
@@ -29,4 +28,5 @@ public class StartContainerTest {
         cloudContainer.start();
         log.info("Cloud started");
     }
+
 }
