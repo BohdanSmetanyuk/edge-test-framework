@@ -23,19 +23,21 @@ import java.util.Random;
 //only device
 
 @Slf4j
-public class DeviceWSClient extends WebSocketClient {
+public class DeviceWSClient extends WebSocketClient { //
 
     private DeviceId deviceId;
+
+    @Getter
     private String latestMessage;
 
-    //@Getter
-    //private List<String> messages;
+    @Getter
+    private List<String> messages;
 
     public DeviceWSClient(String host, String jwt, DeviceId deviceId) throws URISyntaxException {
         super(new URI("ws://" + host + "/api/ws/plugins/telemetry?token=" + jwt));
         this.connect();
         this.deviceId = deviceId;
-        //this.messages = new ArrayList<>();
+        this.messages = new ArrayList<>();
     }
 
     @Override
@@ -48,7 +50,7 @@ public class DeviceWSClient extends WebSocketClient {
     public synchronized void onMessage(String message) {
         try {
             latestMessage = readResponse(message);
-            //messages.add(latestMessage);
+            messages.add(latestMessage);
         } catch (IOException ex) {
             log.error(ex.getMessage());
         }
@@ -62,11 +64,6 @@ public class DeviceWSClient extends WebSocketClient {
     @Override
     public void onError(Exception e) {
         log.error(e.getMessage());
-    }
-
-    public String getLatestMessage() throws InterruptedException {
-        Thread.sleep(500); //
-        return latestMessage;
     }
 
     private String getSubscriptionCommands(DeviceId deviceId) {

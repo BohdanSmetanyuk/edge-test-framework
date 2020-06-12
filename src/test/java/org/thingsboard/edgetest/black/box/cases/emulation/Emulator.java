@@ -5,6 +5,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.thingsboard.edgetest.black.box.util.Converter;
 import org.thingsboard.edgetest.black.box.ws.DeviceWSClient;
 import org.thingsboard.edgetest.clients.http.HTTPClient;
 import org.thingsboard.edgetest.clients.mqtt.MQTTClient;
@@ -17,6 +18,7 @@ import org.thingsboard.server.common.data.page.TimePageLink;
 
 import javax.annotation.PostConstruct;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +39,7 @@ public class Emulator {
     private DeviceWSClient wsClientEdge;
 
     @PostConstruct
-    public void initClients() throws Exception { //
+    public void initClients() throws Exception {
         restClientCloud = new RestClient("http://localhost:8080");
         restClientCloud.login("tenant@thingsboard.org", "tenant");
         restClientEdge = new RestClient("http://localhost:19090");
@@ -46,60 +48,76 @@ public class Emulator {
         mqttClient = new MQTTClient();
         deviceOnCloud = restClientCloud.getTenantDevice("Test Device").get();
         deviceOnEdge = restClientEdge.getTenantDevice("Test Device").get();
-
         wsClientCloud = new DeviceWSClient("localhost:8080", restClientCloud.getToken(), deviceOnCloud.getId());
         wsClientEdge = new DeviceWSClient("localhost:19090", restClientEdge.getToken(), deviceOnEdge.getId());
     }
 
+    @Ignore
     @Test
-    public void testHttpCloud() {
+    public void testHttpCloud() throws Exception {
         String token = restClientCloud.getDeviceCredentialsByDeviceId(deviceOnCloud.getId()).get().getCredentialsId();
         httpClient.init("http://localhost:8080", token);
-        String content = Generator.generateRandomContent();
+        String content = Generator.generateContent();
         log.info("Http client is going to push: " + content);
         httpClient.publish(content);
+        compareLatestMessages();
     }
 
-
-
-    @Test
-    public void testMqttCloud() {
-        String token = restClientCloud.getDeviceCredentialsByDeviceId(deviceOnCloud.getId()).get().getCredentialsId();
-        mqttClient.init("http://localhost:8080", token);
-        String content = Generator.generateRandomContent();
-        log.info("Mqtt client is going to push: " + content);
-        mqttClient.publish(content);
-    }
-
-    @Test
-    public void testHttpEdge() {
-        String token = restClientEdge.getDeviceCredentialsByDeviceId(deviceOnEdge.getId()).get().getCredentialsId();
-        httpClient.init("http://localhost:19090", token);
-        String content = Generator.generateRandomContent();
-        log.info("Http client is going to push: " + content);
-        httpClient.publish(content);
-    }
-
-
-    @Test
-    public void testMqttEdge() {
-        String token = restClientEdge.getDeviceCredentialsByDeviceId(deviceOnEdge.getId()).get().getCredentialsId();
-        MQTTClient.setMqttPort("11883");
-        mqttClient.init("http://localhost:19090", token);
-        String content = Generator.generateRandomContent();
-        log.info("Mqtt client is going to push: " + content);
-        mqttClient.publish(content);
-    }
 
     @Ignore
     @Test
-    public void compare() throws Exception {
-        Thread.sleep(5000);
-        //System.out.println(wsClientCloud.getMessages());
-        //System.out.println(wsClientEdge.getMessages());
-        List<String> keys = restClientCloud.getTimeseriesKeys(deviceOnCloud.getId());
-        List<TsKvEntry> tsKvEntries = restClientCloud.getTimeseries(deviceOnCloud.getId(), keys, 0L, Aggregation.NONE, new TimePageLink(100, System.currentTimeMillis()-5000, System.currentTimeMillis()));
-        System.out.println(tsKvEntries);
+    public void testMqttCloud() throws Exception {
+        String token = restClientCloud.getDeviceCredentialsByDeviceId(deviceOnCloud.getId()).get().getCredentialsId();
+        mqttClient.init("http://localhost:8080", token);
+        String content = Generator.generateContent();
+        log.info("Mqtt client is going to push: " + content);
+        mqttClient.publish(content);
+        compareLatestMessages();
+    }
+
+    @Test
+    public void testHttpEdge() throws Exception {
+        String token = restClientEdge.getDeviceCredentialsByDeviceId(deviceOnEdge.getId()).get().getCredentialsId();
+        httpClient.init("http://localhost:19090", token);
+        String content = Generator.generateContent();
+        log.info("Http client is going to push: " + content);
+        httpClient.publish(content);
+        compareLatestMessages();
+    }
+
+
+    @Test
+    public void testMqttEdge() throws Exception {
+        String token = restClientEdge.getDeviceCredentialsByDeviceId(deviceOnEdge.getId()).get().getCredentialsId();
+        MQTTClient.setMqttPort("11883");
+        mqttClient.init("http://localhost:19090", token);
+        String content = Generator.generateContent();
+        log.info("Mqtt client is going to push: " + content);
+        mqttClient.publish(content);
+        compareLatestMessages();
+    }
+
+    @Test
+    public void generalComparison() throws Exception {
+        Thread.sleep(1000);
+        List<String> keys = Arrays.asList("key1", "key2", "key3");
+        List<TsKvEntry> cloudTimeseries = restClientCloud.getTimeseries(deviceOnCloud.getId(), keys, 0L, Aggregation.NONE, new TimePageLink(100, 0L, System.currentTimeMillis()));
+        List<TsKvEntry> edgeTimeseries = restClientCloud.getTimeseries(deviceOnEdge.getId(), keys, 0L, Aggregation.NONE, new TimePageLink(100, 0L, System.currentTimeMillis()));
+        List<String> cloudTimeseriesAsListOfStrings = Converter.convertTsKvEntryListToSimpleStringList(cloudTimeseries, keys.size());
+        List<String> edgeTimeseriesAsListOfStrings = Converter.convertTsKvEntryListToSimpleStringList(edgeTimeseries, keys.size());
+        log.debug("Cloud timeseries: " + cloudTimeseriesAsListOfStrings);
+        log.debug("Edge timeseries: " + edgeTimeseriesAsListOfStrings);
+        assertThat(cloudTimeseriesAsListOfStrings).isEqualTo(edgeTimeseriesAsListOfStrings);
+    }
+
+    // @AfterClass
+    private void compareLatestMessages() throws InterruptedException {
+        Thread.sleep(1000);
+        String latestTelemetryOnEdge = wsClientEdge.getLatestMessage();
+        String latestTelemetryOnCloud = wsClientCloud.getLatestMessage();
+        log.info("Latest telemetry on edge: " + latestTelemetryOnEdge);
+        log.info("Latest telemetry on cloud: " + latestTelemetryOnCloud);
+        assertThat(latestTelemetryOnEdge).isEqualTo(latestTelemetryOnCloud);
     }
 
 }

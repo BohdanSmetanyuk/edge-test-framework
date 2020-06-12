@@ -19,7 +19,7 @@ version: '2.2'
 services:
   mytb:
     restart: always
-    image: "thingsboard/tb-postgres:2.5.1-SNAPSHOT"
+    image: "thingsboard/tb-postgres:2.5.1-SNAPSHOT"   # put your local image of TB with Edge
     ports:
       - "8080:9090"
       - "1883:1883"
@@ -28,5 +28,5 @@ services:
     environment:
       TB_QUEUE_TYPE: in-memory
     volumes:
-      - ~/.mytb-data-ce-edge:/data
-      - ~/.mytb-logs-ce-edge:/var/log/thingsboard
+      - ~/.ce-edge:/data
+      - ~/.ce-edge:/var/log/thingsboard
