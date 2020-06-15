@@ -4,9 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.thingsboard.edgetest.black.box.util.Converter;
 import org.thingsboard.edgetest.black.box.ws.DeviceWSClient;
+import org.thingsboard.edgetest.clients.Client;
 import org.thingsboard.edgetest.clients.http.HTTPClient;
 import org.thingsboard.edgetest.clients.mqtt.MQTTClient;
 import org.thingsboard.edgetest.black.box.util.Generator;
@@ -25,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @RunWith(SpringRunner.class)
+@TestPropertySource(locations = {"classpath:application.properties"})
 public class Emulator {
 
     private HTTPClient httpClient;
@@ -37,6 +41,9 @@ public class Emulator {
 
     private DeviceWSClient wsClientCloud;
     private DeviceWSClient wsClientEdge;
+
+    @Value("${messages.amount}")
+    private int messagesAmount;
 
     @PostConstruct
     public void initClients() throws Exception {
@@ -79,10 +86,7 @@ public class Emulator {
     public void testHttpEdge() throws Exception {
         String token = restClientEdge.getDeviceCredentialsByDeviceId(deviceOnEdge.getId()).get().getCredentialsId();
         httpClient.init("http://localhost:19090", token);
-        String content = Generator.generateContent();
-        log.info("Http client is going to push: " + content);
-        httpClient.publish(content);
-        compareLatestMessages();
+        emulate(httpClient);
     }
 
 
@@ -91,10 +95,7 @@ public class Emulator {
         String token = restClientEdge.getDeviceCredentialsByDeviceId(deviceOnEdge.getId()).get().getCredentialsId();
         MQTTClient.setMqttPort("11883");
         mqttClient.init("http://localhost:19090", token);
-        String content = Generator.generateContent();
-        log.info("Mqtt client is going to push: " + content);
-        mqttClient.publish(content);
-        compareLatestMessages();
+        emulate(mqttClient);
     }
 
     @Test
@@ -105,8 +106,8 @@ public class Emulator {
         List<TsKvEntry> edgeTimeseries = restClientCloud.getTimeseries(deviceOnEdge.getId(), keys, 0L, Aggregation.NONE, new TimePageLink(100, 0L, System.currentTimeMillis()));
         List<String> cloudTimeseriesAsListOfStrings = Converter.convertTsKvEntryListToSimpleStringList(cloudTimeseries, keys.size());
         List<String> edgeTimeseriesAsListOfStrings = Converter.convertTsKvEntryListToSimpleStringList(edgeTimeseries, keys.size());
-        log.debug("Cloud timeseries: " + cloudTimeseriesAsListOfStrings);
-        log.debug("Edge timeseries: " + edgeTimeseriesAsListOfStrings);
+        log.info("Cloud timeseries: " + cloudTimeseriesAsListOfStrings);
+        log.info("Edge timeseries: " + edgeTimeseriesAsListOfStrings);
         assertThat(cloudTimeseriesAsListOfStrings).isEqualTo(edgeTimeseriesAsListOfStrings);
     }
 
@@ -118,6 +119,15 @@ public class Emulator {
         log.info("Latest telemetry on edge: " + latestTelemetryOnEdge);
         log.info("Latest telemetry on cloud: " + latestTelemetryOnCloud);
         assertThat(latestTelemetryOnEdge).isEqualTo(latestTelemetryOnCloud);
+    }
+
+    private void emulate(Client client) throws InterruptedException {
+        for (int i=1; i<=messagesAmount; i++) {
+            String content = Generator.generateContent();
+            log.info("Http client is going to push: " + content);
+            client.publish(content);
+            compareLatestMessages();
+        }
     }
 
 }
